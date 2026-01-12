@@ -1,0 +1,146 @@
+import { Injectable } from '@nestjs/common';
+import PDFDocument from 'pdfkit';
+
+@Injectable()
+export class PdfService {
+  async generateInvoicePdf(invoice: any) {
+    return this.generateRichPdf('INVOICE', invoice);
+  }
+
+  async generateQuotationPdf(quotation: any) {
+    return this.generateRichPdf('QUOTATION', quotation);
+  }
+
+  private async generateRichPdf(title: string, data: any) {
+    const doc = new PDFDocument({ margin: 50 });
+    const chunks: Buffer[] = [];
+    doc.on('data', (d) => chunks.push(d));
+
+    const dateStr = data.date ? new Date(data.date).toLocaleDateString() : new Date().toLocaleDateString();
+    const year = data.date ? new Date(data.date).getFullYear() : new Date().getFullYear();
+    const prefix = title === 'QUOTATION' ? 'QUO' : 'INV';
+    const ref = `${prefix}-${year}-${data._id.toString().slice(-4).toUpperCase()}`;
+
+    // Logo & Header
+    if (data.logo) {
+      try {
+        const logoData = data.logo.replace(/^data:image\/\w+;base64,/, '');
+        doc.image(Buffer.from(logoData, 'base64'), 50, 45, { width: 60 });
+      } catch (e) {
+        console.error('Error adding logo to PDF', e);
+      }
+    }
+
+    doc.fillColor('#1e293b') // slate-800
+      .fontSize(24)
+      .text(title, 110, 50, { align: 'right' })
+      .fontSize(10)
+      .fillColor('#64748b') // slate-500
+      .text(`REF: ${ref}`, 200, 80, { align: 'right' })
+      .text(`Date: ${dateStr}`, 200, 95, { align: 'right' })
+      .moveDown();
+
+    // Gray line
+    doc.strokeColor('#f1f5f9') // slate-100
+      .lineWidth(1)
+      .moveTo(50, 125)
+      .lineTo(550, 125)
+      .stroke();
+
+    // Info Grid
+    const infoY = 145;
+    doc.fontSize(8).fillColor('#94a3b8').text('TO CUSTOMER', 50, infoY);
+    doc.fontSize(8).fillColor('#94a3b8').text('FROM COMPANY', 320, infoY);
+
+    const customer = data.customer as any;
+    const customerName = typeof customer === 'string' ? customer : (customer?.name || 'Unspecified Customer');
+    const customerEmail = typeof customer === 'object' ? (customer?.email || '') : '';
+    const customerPhone = typeof customer === 'object' ? (customer?.phone || '') : '';
+    const customerAddress = typeof customer === 'object' ? (customer?.address || '') : '';
+
+    doc.fontSize(12).fillColor('#0f172a').font('Helvetica-Bold')
+      .text(customerName, 50, infoY + 15)
+      .font('Helvetica').fontSize(10).fillColor('#64748b')
+      .text(customerEmail, 50, infoY + 32)
+      .text(customerPhone, 50, infoY + 47)
+      .text(customerAddress, 50, infoY + 62);
+
+    doc.fontSize(12).fillColor('#0f172a').font('Helvetica-Bold')
+      .text('Innovation Drive Co.', 320, infoY + 15)
+      .font('Helvetica').fontSize(10).fillColor('#64748b')
+      .text('123 Innovation Drive, SV, CA', 320, infoY + 32)
+      .text('contact@innovationdrive.co', 320, infoY + 47);
+
+    // Table Header
+    const tableHeaderY = 280;
+    doc.fontSize(8).fillColor('#94a3b8').font('Helvetica-Bold')
+      .text('DESCRIPTION', 50, tableHeaderY)
+      .text('QTY', 300, tableHeaderY, { width: 40, align: 'center' })
+      .text('UNIT PRICE', 350, tableHeaderY, { width: 80, align: 'right' })
+      .text('AMOUNT', 450, tableHeaderY, { width: 100, align: 'right' });
+
+    doc.strokeColor('#0f172a')
+      .lineWidth(2)
+      .moveTo(50, tableHeaderY + 15)
+      .lineTo(550, tableHeaderY + 15)
+      .stroke();
+
+    // Table Rows
+    let currentY = tableHeaderY + 30;
+    const items = data.items || [];
+    let subtotal = 0;
+
+    items.forEach((item: any) => {
+      const qty = Number(item.quantity || 0);
+      const price = Number(item.price || 0);
+      const amount = qty * price;
+      subtotal += amount;
+
+      doc.fontSize(10).fillColor('#0f172a').font('Helvetica-Bold')
+        .text(item.description || 'No description', 50, currentY, { width: 240 })
+        .font('Helvetica')
+        .text(qty.toString(), 300, currentY, { width: 40, align: 'center' })
+        .text(`$${price.toFixed(2)}`, 350, currentY, { width: 80, align: 'right' })
+        .font('Helvetica-Bold')
+        .text(`$${amount.toFixed(2)}`, 450, currentY, { width: 100, align: 'right' });
+
+      currentY += 30;
+      doc.strokeColor('#f1f5f9')
+        .lineWidth(1)
+        .moveTo(50, currentY - 10)
+        .lineTo(550, currentY - 10)
+        .stroke();
+
+      if (currentY > 650) {
+        doc.addPage();
+        currentY = 50;
+      }
+    });
+
+    const taxRate = Number(data.taxRate || 0);
+    const taxAmount = subtotal * (taxRate / 100);
+    const finalTotal = subtotal + taxAmount;
+
+    // Summary
+    const summaryY = Math.max(currentY + 20, 500);
+    doc.fontSize(10).fillColor('#64748b').font('Helvetica')
+      .text('SUBTOTAL', 350, summaryY, { width: 80, align: 'right' })
+      .text(`TAX (${taxRate}%)`, 350, summaryY + 20, { width: 80, align: 'right' });
+
+    doc.fillColor('#0f172a').font('Helvetica-Bold')
+      .text(`$${Number(subtotal).toFixed(2)}`, 450, summaryY, { width: 100, align: 'right' })
+      .text(`$${Number(taxAmount).toFixed(2)}`, 450, summaryY + 20, { width: 100, align: 'right' });
+
+    doc.fontSize(18).fillColor('#0f172a')
+      .text('TOTAL', 350, summaryY + 45, { width: 80, align: 'right' })
+      .text(`$${Number(finalTotal).toFixed(2)}`, 440, summaryY + 45, { width: 110, align: 'right' });
+
+    // Footer
+    doc.fontSize(8).fillColor('#94a3b8').font('Helvetica-Oblique')
+      .text('Thank you for choosing Innovation Drive Co.', 0, 750, { align: 'center' });
+
+    doc.end();
+    await new Promise((res) => doc.on('end', res));
+    return Buffer.concat(chunks);
+  }
+}
