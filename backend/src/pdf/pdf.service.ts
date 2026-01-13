@@ -143,4 +143,48 @@ export class PdfService {
     await new Promise((res) => doc.on('end', res));
     return Buffer.concat(chunks);
   }
+
+  async generateDashboardReport(stats: any) {
+    const doc = new PDFDocument({ margin: 50 });
+    const chunks: Buffer[] = [];
+    doc.on('data', (d) => chunks.push(d));
+
+    // Header
+    doc.fillColor('#1e293b').fontSize(24).text('DASHBOARD REPORT', 50, 50);
+    doc.fontSize(10).fillColor('#64748b').text(`Generated on: ${new Date().toLocaleString()}`, 50, 80);
+
+    doc.strokeColor('#f1f5f9').lineWidth(1).moveTo(50, 100).lineTo(550, 100).stroke();
+
+    // Stats Section
+    doc.moveDown(2);
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(16).text('Business Overview', 50, 120);
+
+    doc.moveDown();
+    const statsY = 150;
+
+    // Revenue Box
+    doc.rect(50, statsY, 240, 60).fillAndStroke('#f8fafc', '#e2e8f0');
+    doc.fillColor('#64748b').fontSize(10).text('TOTAL REVENUE', 60, statsY + 15);
+    doc.fillColor('#0f172a').fontSize(14).font('Helvetica-Bold').text(`$${stats.totalRevenue?.toLocaleString()}`, 60, statsY + 35);
+
+    // Overdue Box
+    doc.rect(300, statsY, 240, 60).fillAndStroke('#fef2f2', '#fecaca');
+    doc.fillColor('#991b1b').fontSize(10).text('OVERDUE AMOUNT', 310, statsY + 15);
+    doc.fillColor('#b91c1c').fontSize(14).font('Helvetica-Bold').text(`$${stats.overdue?.toLocaleString()}`, 310, statsY + 35);
+
+    doc.moveDown(5);
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(12).text(`Active Customers: ${stats.customers}`, 50, statsY + 80);
+
+    // Insights Section
+    if (stats.insights) {
+      doc.moveDown(2);
+      doc.fillColor('#1e293b').fontSize(14).font('Helvetica-Bold').text('AI Business Insights', 50);
+      doc.moveDown();
+      doc.fillColor('#475569').fontSize(10).font('Helvetica').text(stats.insights, { width: 500, align: 'justify' });
+    }
+
+    doc.end();
+    await new Promise((res) => doc.on('end', res));
+    return Buffer.concat(chunks);
+  }
 }

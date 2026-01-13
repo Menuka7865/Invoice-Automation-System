@@ -20,6 +20,7 @@ export default function DashboardPage() {
     const { customers } = useCustomers();
     const [aiInsights, setAiInsights] = useState<any>(null);
     const [loadingInsights, setLoadingInsights] = useState(true);
+    const [generatingReport, setGeneratingReport] = useState(false);
 
     useEffect(() => {
         const fetchInsights = async () => {
@@ -34,6 +35,24 @@ export default function DashboardPage() {
         };
         fetchInsights();
     }, []);
+
+    const handleGenerateReport = async () => {
+        setGeneratingReport(true);
+        try {
+            const response = await aiAPI.downloadReport();
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `dashboard-report-${new Date().toISOString().split('T')[0]}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error('Failed to generate report', error);
+        } finally {
+            setGeneratingReport(false);
+        }
+    };
 
     // Calculate dynamic stats from API data
     const totalRevenue = aiInsights?.totalRevenue || 0;
@@ -80,8 +99,12 @@ export default function DashboardPage() {
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
                     <p className="text-muted-foreground">Welcome back! Here's what's happening with your business.</p>
                 </div>
-                <button className="w-full md:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all">
-                    Generate Report
+                <button
+                    onClick={handleGenerateReport}
+                    disabled={generatingReport}
+                    className="w-full md:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {generatingReport ? 'Generating...' : 'Generate Report'}
                 </button>
             </div>
 

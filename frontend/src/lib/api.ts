@@ -68,6 +68,7 @@ export const companyAPI = {
 // AI API
 export const aiAPI = {
     getInsights: () => api.get('/ai/insights'),
+    downloadReport: () => api.get('/ai/report', { responseType: 'blob' }),
 };
 
 export default api;
