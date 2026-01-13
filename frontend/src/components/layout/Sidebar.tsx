@@ -75,16 +75,16 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            <div className="absolute bottom-4 left-0 w-full p-4">
+            <div className="absolute bottom-4 left-0 w-full p-2">
                 <button
                     onClick={logout}
                     className={cn(
-                        "flex items-center gap-4 p-3 w-full rounded-xl hover:bg-destructive/10 text-destructive transition-all group",
+                        "flex items-center gap-4 p-3 w-full rounded-xl  hover:bg-destructive/10 text-destructive transition-all group cursor-pointer",
                         !sidebarOpen && "justify-center"
                     )}
                 >
                     <LogOut size={22} className="min-w-[22px]" />
-                    {sidebarOpen && <span className="font-medium">Logout</span>}
+                    {sidebarOpen && <span className="font-medium ">Logout</span>}
                 </button>
             </div>
         </aside>

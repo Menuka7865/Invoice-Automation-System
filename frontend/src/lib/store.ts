@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { authAPI } from './api';
 
 interface AuthState {
     user: any | null;
@@ -14,7 +15,16 @@ export const useAuthStore = create<AuthState>()(
             user: null,
             token: null,
             setAuth: (user, token) => set({ user, token }),
-            logout: () => set({ user: null, token: null }),
+            logout: async () => {
+                try {
+                    await authAPI.logout();
+                } catch (error) {
+                    console.error('Logout failed:', error);
+                } finally {
+                    set({ user: null, token: null });
+                    window.location.href = '/login';
+                }
+            },
 
         }),
         {

@@ -16,4 +16,9 @@ export class AuthController {
     if (!valid) throw new UnauthorizedException('Invalid credentials');
     return this.authService.login(valid);
   }
+
+  @Post('logout')
+  logout() {
+    return { success: true, message: 'Logged out successfully' };
+  }
 }
