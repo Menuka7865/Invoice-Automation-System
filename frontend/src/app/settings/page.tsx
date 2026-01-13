@@ -1,15 +1,36 @@
 "use client";
 
-import { Save, Building, Mail, Phone, MapPin, Globe, CreditCard, Shield } from 'lucide-react';
+import { useEffect } from 'react';
+import { Save, Building, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
+import { useForm } from 'react-hook-form';
 
 export default function SettingsPage() {
-    const handleSave = () => {
-        toast.success('Settings saved successfully!');
+    const { profile, loading, updateProfile } = useCompanyProfile();
+    const { register, handleSubmit, reset } = useForm();
+
+    useEffect(() => {
+        if (profile) {
+            reset(profile);
+        }
+    }, [profile, reset]);
+
+    const onSubmit = async (data: any) => {
+        await updateProfile(data);
     };
 
+    if (loading) {
+        return (
+            <div className="h-64 flex flex-col items-center justify-center text-muted-foreground">
+                <Loader2 className="animate-spin mb-4" size={40} />
+                <p className="font-bold">Loading settings...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="max-w-4xl space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl space-y-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
                 <p className="text-muted-foreground">Configure your company profile and system preferences.</p>
@@ -28,44 +49,43 @@ export default function SettingsPage() {
                                 <Building className="text-muted-foreground group-hover:text-primary transition-colors" size={32} />
                             </div>
                             <div>
-                                <button className="bg-primary text-black px-4 py-2 rounded-xl text-sm font-bold">Upload Logo</button>
-                               
+                                <button type="button" className="bg-primary text-black px-4 py-2 rounded-xl text-sm font-bold">Upload Logo</button>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Business Name</label>
-                                <input type="text" className="w-full bg-muted border-none rounded-xl border text-gray-500  p-3 outline-none focus:ring-2 focus:ring-primary/20" defaultValue="My Agency Inc." />
+                                <input {...register('name')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Business Email</label>
-                                <input type="email" className="w-full bg-muted border-none rounded-xl p-3 border text-gray-500 outline-none focus:ring-2 focus:ring-primary/20" defaultValue="billing@myagency.com" />
+                                <input {...register('email')} type="email" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Phone Number</label>
-                                <input type="text" className="w-full bg-muted border-none rounded-xl  border text-gray-500 p-3 outline-none focus:ring-2 focus:ring-primary/20" defaultValue="+1 (555) 000-0000" />
+                                <input {...register('phone')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Website</label>
-                                <input type="text" className="w-full bg-muted border-none rounded-xl border text-gray-500 p-3 outline-none focus:ring-2 focus:ring-primary/20" defaultValue="www.myagency.com" />
+                                <input {...register('website')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" />
                             </div>
                         </div>
 
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Global Address</label>
-                            <textarea className="w-full bg-muted border-none rounded-xl border text-gray-500 p-3 outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px]" defaultValue='123 Innovation Drive, Silicon Valley, CA 94025'></textarea>
+                            <textarea {...register('address')} className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px]"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="pt-8 border-t flex justify-end gap-3">
-                <button className="px-8 py-3 rounded-2xl text-white font-bold bg-black hover:bg-muted/80 transition-all">Discard Changes</button>
-                <button onClick={handleSave} className="px-8 py-3 rounded-2xl font-bold bg-primary text-black hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                <button type="button" onClick={() => reset(profile)} className="px-8 py-3 rounded-2xl text-white font-bold bg-black hover:bg-muted/80 transition-all">Discard Changes</button>
+                <button type="submit" className="px-8 py-3 rounded-2xl font-bold bg-primary text-black hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
                     <Save size={18} /> Save Settings
                 </button>
             </div>
-        </div>
+        </form>
     );
 }

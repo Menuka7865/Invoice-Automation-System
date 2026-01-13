@@ -49,6 +49,21 @@ export const quotationsAPI = {
     sendEmail: (id: string) => api.post(`/quotations/${id}/send`),
 };
 
+// Services API
+export const servicesAPI = {
+    create: (data: any) => api.post('/services', data),
+    list: () => api.get('/services'),
+    getById: (id: string) => api.get(`/services/${id}`),
+    update: (id: string, data: any) => api.put(`/services/${id}`, data),
+    delete: (id: string) => api.delete(`/services/${id}`),
+};
+
+// Company API
+export const companyAPI = {
+    get: () => api.get('/company'),
+    update: (data: any) => api.post('/company', data),
+};
+
 // AI API
 export const aiAPI = {
     getInsights: () => api.get('/ai/insights'),

@@ -12,13 +12,15 @@ import {
     ChevronLeft,
     ChevronRight,
     TrendingUp,
-    Mail
+    Mail,
+    Briefcase
 } from 'lucide-react';
 import { useUIStore, useAuthStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+    { icon: Briefcase, label: 'Services', href: '/services' },
     { icon: Users, label: 'Customers', href: '/customers' },
     { icon: FileText, label: 'Quotations', href: '/quotations' },
     { icon: Receipt, label: 'Invoices', href: '/invoices' },

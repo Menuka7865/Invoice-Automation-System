@@ -96,7 +96,7 @@ export default function InsightsPage() {
                         </button>
                     </div>
 
-                    <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
+                    {/* <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
                             <Lightbulb size={24} className="text-amber-500" />
                             <h4 className="font-bold text-lg">Optimization</h4>
@@ -110,12 +110,12 @@ export default function InsightsPage() {
                                 Generate Report
                             </button>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
             {/* Customer Risk Matrix */}
-            <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
+            {/* <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
                 <h3 className="text-xl font-bold mb-8 flex items-center gap-2">
                     <AlertTriangle size={20} className="text-destructive" /> Payment Risk Matrix
                 </h3>
@@ -148,7 +148,7 @@ export default function InsightsPage() {
                         </motion.div>
                     ))}
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 }

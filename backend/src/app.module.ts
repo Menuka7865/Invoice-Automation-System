@@ -12,6 +12,8 @@ import { QuotationsModule } from './quotations/quotations.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { AutomationModule } from './automation/automation.module';
 import { AiModule } from './ai/ai.module';
+import { ServicesModule } from './services/services.module';
+import { CompanyModule } from './company/company.module';
 
 @Module({
   imports: [
@@ -28,8 +30,10 @@ import { AiModule } from './ai/ai.module';
     InvoicesModule,
     AutomationModule,
     AiModule,
+    ServicesModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
