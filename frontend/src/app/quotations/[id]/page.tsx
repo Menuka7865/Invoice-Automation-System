@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Send, Save, ArrowLeft, Building2, Calendar, FileText, Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Plus, Trash2, Send, Save, ArrowLeft, Building2, Calendar, FileText, Loader2, Eye, History as HistoryIcon } from 'lucide-react';
+import { useRouter, useParams } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { formatCurrency } from '@/lib/utils';
@@ -9,27 +9,24 @@ import Link from 'next/link';
 import Modal from '@/components/ui/Modal';
 import QuotationPreview from '@/components/quotations/QuotationPreview';
 import VersionHistory, { VersionEntry } from '@/components/quotations/VersionHistory';
-import { Eye, History as HistoryIcon } from 'lucide-react';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useQuotations } from '@/hooks/useInvoices';
+import { quotationsAPI } from '@/lib/api';
 
-export default function NewQuotationPage() {
+export default function EditQuotationPage() {
     const router = useRouter();
+    const params = useParams();
+    const id = params.id as string;
+
     const { customers, fetchCustomers } = useCustomers();
-    const { createQuotation } = useQuotations();
+    const { updateQuotation } = useQuotations();
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [history, setHistory] = useState<VersionEntry[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
-
-    // Tracks the last captured state to detect changes
-    const lastStateRef = useRef<any>(null);
-
-    const { register, control, handleSubmit, watch, setValue } = useForm({
+    const { register, control, handleSubmit, watch, setValue, reset } = useForm({
         defaultValues: {
             customer: '',
             date: new Date().toISOString().split('T')[0],
@@ -37,9 +34,42 @@ export default function NewQuotationPage() {
             taxRate: 10,
             currency: 'USD',
             logo: null,
-            version: '1.0'
+            version: '1.0',
+            status: 'Draft'
         }
     });
+
+    useEffect(() => {
+        fetchCustomers();
+        const fetchQuote = async () => {
+            try {
+                const { data } = await quotationsAPI.getById(id);
+                // Ensure date is formatted for input type="date"
+                const formattedDate = data.date ? new Date(data.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+
+                reset({
+                    customer: data.customer?._id || data.customer,
+                    date: formattedDate,
+                    items: data.items || [],
+                    taxRate: data.taxRate || 0,
+                    currency: data.currency || 'USD',
+                    logo: data.logo || null,
+                    version: '1.0', // Could come from backend if versioning is implemented
+                    status: data.status
+                });
+
+                if (data.logo) setLogoPreview(data.logo);
+                setLoading(false);
+            } catch (error) {
+                toast.error('Failed to fetch quotation');
+                router.push('/quotations');
+            }
+        };
+        if (id) fetchQuote();
+    }, [id]);
+
+    // Tracks the last captured state to detect changes
+    const lastStateRef = useRef<any>(null);
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -53,44 +83,19 @@ export default function NewQuotationPage() {
     const tax = subtotal * (Number(taxRate) / 100);
     const total = subtotal + tax;
 
-    // Change Detection Logic
+    // Change Detection Logic (simplified for edit)
     useEffect(() => {
+        if (loading) return;
         const timer = setTimeout(() => {
             if (!lastStateRef.current) {
                 lastStateRef.current = formData;
                 return;
             }
-
-            let changeReason = "";
-            if (formData.customer !== lastStateRef.current.customer) {
-                changeReason = "Updated Customer Selection";
-            } else if (formData.taxRate !== lastStateRef.current.taxRate) {
-                changeReason = `Adjusted Tax Rate to ${formData.taxRate}%`;
-            } else if (formData.items.length !== lastStateRef.current.items.length) {
-                changeReason = formData.items.length > lastStateRef.current.items.length ? "Added Line Item" : "Removed Line Item";
-            } else {
-                // Check for individual item changes
-                const itemChanged = formData.items.some((item, idx) => {
-                    const lastItem = lastStateRef.current?.items[idx];
-                    return lastItem && (item.description !== lastItem.description || item.price !== lastItem.price || item.quantity !== lastItem.quantity);
-                });
-                if (itemChanged) changeReason = "Modified Item Details";
-            }
-
-            if (changeReason) {
-                const newEntry: VersionEntry = {
-                    id: Math.random().toString(36).substr(2, 9),
-                    action: changeReason,
-                    timestamp: new Date().toISOString(),
-                    userName: "Current User"
-                };
-                setHistory(prev => [newEntry, ...prev]);
-                lastStateRef.current = formData;
-            }
-        }, 1000); // Debounce detect
-
+            // Logic similar to create page...
+            lastStateRef.current = formData;
+        }, 1000);
         return () => clearTimeout(timer);
-    }, [formData]);
+    }, [formData, loading]);
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -100,33 +105,31 @@ export default function NewQuotationPage() {
                 const result = reader.result as string;
                 setLogoPreview(result);
                 setValue('logo', result as any);
-
-                // Manually log logo change since watch might not catch base64 immediately
-                setHistory(prev => [{
-                    id: Math.random().toString(36).substr(2, 9),
-                    action: "Uploaded Company Logo",
-                    timestamp: new Date().toISOString(),
-                    userName: "Current User"
-                }, ...prev]);
             };
             reader.readAsDataURL(file);
         }
     };
 
-    const onSave = async (data: any, isDraft = false) => {
+    const onUpdate = async (data: any, newStatus?: string) => {
         try {
             const finalData = {
                 ...data,
-                history,
-                status: isDraft ? 'Draft' : 'Sent',
+                // history, // Can add history later if backend supports it
+                status: newStatus || data.status,
                 total
             };
-            await createQuotation(finalData);
+            await updateQuotation(id, finalData);
             router.push('/quotations');
         } catch (error) {
             console.error(error);
         }
     };
+
+    if (loading) return (
+        <div className="flex justify-center items-center h-screen">
+            <Loader2 className="animate-spin text-primary" size={48} />
+        </div>
+    );
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12 px-4 flex gap-8">
@@ -138,22 +141,14 @@ export default function NewQuotationPage() {
                         </Link>
                         <div>
                             <div className="flex items-center gap-2">
-                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Create New Quotation</h1>
-                                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest border border-primary/20">v{formData.version}</span>
+                                <h1 className="text-3xl font-bold tracking-tight text-foreground">Edit Quotation</h1>
+                                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-full uppercase tracking-widest border border-primary/20">{formData.status}</span>
                             </div>
-                            <p className="text-muted-foreground">Draft a new proposal for your customer.</p>
+                            <p className="text-muted-foreground">Update quotation details.</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                            className={`p-3 rounded-2xl transition-all border ${isHistoryOpen ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20' : 'bg-card border-border hover:border-primary/50 text-muted-foreground'}`}
-                        >
-                            <HistoryIcon size={20} />
-                        </button>
-
                         {/* Logo Upload Section */}
                         <div className="relative group">
                             <input
@@ -277,7 +272,7 @@ export default function NewQuotationPage() {
                             <div className="grid grid-cols-12 gap-4 text-xs font-bold text-muted-foreground uppercase px-4">
                                 <div className="col-span-6">Description</div>
                                 <div className="col-span-2 text-center">Quantity</div>
-                                <div className="col-span-3 text-right">Unit Price</div>
+                                <div className="col-span-3 text-right">Unit Price ({formData.currency})</div>
                                 <div className="col-span-1"></div>
                             </div>
 
@@ -322,15 +317,15 @@ export default function NewQuotationPage() {
                             <div className="w-full max-w-xs space-y-3">
                                 <div className="flex justify-between text-muted-foreground">
                                     <span>Subtotal</span>
-                                    <span className="font-bold text-foreground">{formatCurrency(subtotal)}</span>
+                                    <span className="font-bold text-foreground">{formatCurrency(subtotal, formData.currency)}</span>
                                 </div>
                                 <div className="flex justify-between text-muted-foreground items-center">
                                     <span>Tax ({taxRate}%)</span>
-                                    <span className="font-bold text-foreground">{formatCurrency(tax)}</span>
+                                    <span className="font-bold text-foreground">{formatCurrency(tax, formData.currency)}</span>
                                 </div>
                                 <div className="flex justify-between text-xl border-t border-border/50 pt-4">
                                     <span className="font-bold text-foreground">Total Amount</span>
-                                    <span className="font-black text-primary">{formatCurrency(total)}</span>
+                                    <span className="font-black text-primary">{formatCurrency(total, formData.currency)}</span>
                                 </div>
                             </div>
                         </div>
@@ -347,28 +342,14 @@ export default function NewQuotationPage() {
                         </button>
                         <button
                             type="button"
-                            onClick={handleSubmit((data) => onSave(data, true))}
-                            className="px-6 py-3 rounded-2xl font-bold bg-muted hover:bg-background transition-all flex items-center gap-2 bg-white border border-black cursor-pointer focus:ring-2 focus:ring-muted-foreground/20"
-                        >
-                            <Save size={18} /> Save as Draft
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSubmit((data) => onSave(data, false))}
+                            onClick={handleSubmit((data) => onUpdate(data))}
                             className="px-8 py-3 rounded-2xl font-bold bg-primary text-primary-foreground hover:brightness-110 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 cursor-pointer focus:ring-2 focus:ring-primary/40"
                         >
-                            <Send size={18} /> Send Quotation
+                            <Save size={18} /> Update Quotation
                         </button>
                     </div>
                 </form>
             </div>
-
-            {/* Version History Sidebar */}
-            {isHistoryOpen && (
-                <div className="w-80 shrink-0 sticky top-24 h-[calc(100vh-140px)] animate-in slide-in-from-right fade-in">
-                    <VersionHistory history={history} />
-                </div>
-            )}
 
             <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} title="Quotation Preview">
                 <QuotationPreview

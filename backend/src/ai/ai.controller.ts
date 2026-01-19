@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { AiService } from './ai.service';
 import { PdfService } from '../pdf/pdf.service';
 import type { Response } from 'express';
@@ -11,8 +11,10 @@ export class AiController {
   ) { }
 
   @Get('insights')
-  async insights() {
-    return this.ai.summarize();
+  async insights(@Query('startDate') startDate?: string, @Query('endDate') endDate?: string) {
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+    return this.ai.summarize(start, end);
   }
 
   @Get('report')

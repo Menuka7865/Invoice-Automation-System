@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 
-import { Plus, Search, Mail, Phone, Building2, MoreVertical, Edit2, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { Plus, Search, Mail, Phone, Building2, MoreVertical, Edit2, Trash2, ExternalLink, Loader2, MapPin, User } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import { formatCurrency } from '@/lib/utils';
 import { useCustomers } from '@/hooks/useCustomers';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 
 const mockCustomers = [
     { id: '1', name: 'John Doe', company: 'Acme Corp', email: 'john@acme.com', phone: '+1 234 567 890', totalSpent: 12500, activeQuotes: 2, activeInvoices: 1 },
@@ -20,7 +20,21 @@ export default function CustomersPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingId, setEditingId] = useState<string | null>(null);
     const { customers, loading, fetchCustomers, createCustomer, updateCustomer, deleteCustomer } = useCustomers();
-    const { register, handleSubmit, reset, setValue } = useForm();
+    const { register, handleSubmit, reset, setValue, control } = useForm({
+        defaultValues: {
+            name: '',
+            company: '',
+            email: '',
+            phone: '',
+            address: '',
+            contacts: [] as any[]
+        }
+    });
+
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: "contacts"
+    });
 
     const filteredCustomers = customers.filter((c: any) =>
         !searchTerm || c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -49,6 +63,8 @@ export default function CustomersPage() {
         setValue('company', customer.company);
         setValue('email', customer.email);
         setValue('phone', customer.phone);
+        setValue('address', customer.address);
+        setValue('contacts', customer.contacts || []);
         setIsModalOpen(true);
     };
 
@@ -56,7 +72,7 @@ export default function CustomersPage() {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Customer Management</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Manage Companies</h1>
                     <p className="text-muted-foreground">Add, track, and manage your partner companies.</p>
                 </div>
                 <button
@@ -67,7 +83,7 @@ export default function CustomersPage() {
                     }}
                     className="bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2"
                 >
-                    <Plus size={20} /> Add Customer
+                    <Plus size={20} /> Add Company
                 </button>
             </div>
 
@@ -101,7 +117,7 @@ export default function CustomersPage() {
                     </div>
                 ) : customers.length === 0 ? (
                     <div className="col-span-full h-64 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-[2.5rem]">
-                        <p className="font-bold">No customers found.</p>
+                        <p className="font-bold">No companies found.</p>
                     </div>
                 ) : filteredCustomers.map((customer: any) => (
                     <div key={customer._id} className="bg-card p-6 rounded-3xl border shadow-sm hover:border-primary/40 transition-all group">
@@ -127,14 +143,8 @@ export default function CustomersPage() {
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <div>
-                                <h3 className="font-bold text-lg">{customer.name}</h3>
-                                <div className="flex items-center gap-1.5 text-muted-foreground text-sm mt-0.5">
-                                    <Building2 size={14} /> {customer.company || 'N/A'}
-                                </div>
-                            </div>
-
+                        <div>
+                                <h3 className="font-bold text-lg flex items-center gap-2"><Building2 size={14} />{customer.name}</h3>
                             <div className="space-y-2 border-t pt-4">
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Mail size={14} className="text-primary" /> {customer.email}
@@ -142,7 +152,46 @@ export default function CustomersPage() {
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Phone size={14} className="text-primary" /> {customer.phone || 'N/A'}
                                 </div>
+                                {customer.address && (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <MapPin size={14} className="text-primary" /> {customer.address}
+                                    </div>
+                                )}
                             </div>
+
+                            {customer.contacts && customer.contacts.length > 0 && (
+                                <div className="border-t pt-3 space-y-2">
+                                    <p className="text-xs font-semibold uppercase text-muted-foreground tracking-wider flex items-center gap-1 bg-muted/40 p-2.5 rounded-lg">
+                                        <User size={12} /> Key Contacts
+                                    </p>
+                                    <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1 custom-scrollbar">
+                                        {customer.contacts.map((contact: any, i: number) => (
+                                            <div key={i} className="bg-muted/40 p-2.5 rounded-lg text-sm border hover:border-primary/20 transition-colors">
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <span className="font-medium text-foreground">{contact.name}</span>
+                                                    {contact.designation && (
+                                                        <span className="text-[10px] bg-background px-1.5 py-0.5 rounded border text-muted-foreground font-medium">
+                                                            {contact.designation}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    {contact.email && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                            <Mail size={10} /> {contact.email}
+                                                        </div>
+                                                    )}
+                                                    {contact.phone && (
+                                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                            <Phone size={10} /> {contact.phone}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     </div>
@@ -156,26 +205,85 @@ export default function CustomersPage() {
                     setEditingId(null);
                     reset();
                 }}
-                title={editingId ? 'Edit Customer' : 'Add New Customer'}
+                title={editingId ? 'Edit Company' : 'Add New Company'}
             >
                 <form onSubmit={handleSubmit(editingId ? handleUpdate : handleCreate)} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4 ">
                         <div className="space-y-1">
-                            <label className="text-sm font-medium">Customer Name</label>
-                            <input {...register('name')} required type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. John Doe" />
-                        </div>
-                        <div className="space-y-1">
                             <label className="text-sm font-medium">Company Name</label>
+                            <input {...register('name')} required type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. ABC company" />
+                        </div>
+                        {/* <div className="space-y-1">
+                            <label className="text-sm font-medium">Customer Name</label>
                             <input {...register('company')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Acme Corp" />
+                        </div> */}
+                        <div className="space-y-1">
+                            <label className="text-sm font-medium">Company Address</label>
+                            <input {...register('address')} required type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="123 Main St, Anytown" />
                         </div>
                     </div>
                     <div className="space-y-1">
                         <label className="text-sm font-medium">Email Address</label>
                         <input {...register('email')} required type="email" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="john@example.com" />
                     </div>
+
                     <div className="space-y-1">
-                        <label className="text-sm font-medium">Phone Number</label>
+                        <label className="text-sm font-medium">Company Phone Number</label>
                         <input {...register('phone')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="+1 (555) 000-0000" />
+                    </div>
+
+                    {/* Contact Persons Section */}
+                    <div className="space-y-3 pt-4 border-t">
+                        <div className="flex justify-between items-center">
+                            <label className="text-sm font-bold">Contact Persons</label>
+                            <button
+                                type="button"
+                                onClick={() => append({ name: '', email: '', phone: '', designation: '' })}
+                                className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors font-medium flex items-center gap-1"
+                            >
+                                <Plus size={14} /> Add Contact
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="bg-muted/50 p-4 rounded-xl space-y-3 relative group">
+                                    <button
+                                        type="button"
+                                        onClick={() => remove(index)}
+                                        className="absolute top-2 right-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-muted-foreground">Name</label>
+                                            <input {...register(`contacts.${index}.name` as const)} placeholder="Name" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-muted-foreground">Designation</label>
+                                            <input {...register(`contacts.${index}.designation` as const)} placeholder="Role/Title" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-muted-foreground">Email</label>
+                                            <input {...register(`contacts.${index}.email` as const)} placeholder="Email" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-xs font-medium text-muted-foreground">Phone</label>
+                                            <input {...register(`contacts.${index}.phone` as const)} placeholder="Phone" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {fields.length === 0 && (
+                                <div className="text-center py-6 text-muted-foreground text-sm bg-muted/30 rounded-xl border border-dashed">
+                                    No contact persons added yet.
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <div className="pt-4 flex gap-3">
                         <button type="button" onClick={() => {
@@ -183,7 +291,7 @@ export default function CustomersPage() {
                             setEditingId(null);
                             reset();
                         }} className="flex-1 py-3 rounded-xl font-bold bg-muted hover:bg-muted/80 transition-all">Cancel</button>
-                        <button type="submit" className="flex-1 py-3 rounded-xl font-bold bg-primary text-gray-900 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">{editingId ? 'Update' : 'Create'} Customer</button>
+                        <button type="submit" className="flex-1 py-3 rounded-xl font-bold bg-primary text-gray-900 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">{editingId ? 'Update' : 'Create'} Company</button>
                     </div>
                 </form>
             </Modal>

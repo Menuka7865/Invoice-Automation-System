@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import {
     TrendingUp, Users, Receipt, Clock, AlertCircle,
-    ArrowUpRight, ArrowDownRight
+    ArrowUpRight, ArrowDownRight, Calendar
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useInvoices } from '@/hooks/useInvoices';
@@ -21,20 +21,54 @@ export default function DashboardPage() {
     const [aiInsights, setAiInsights] = useState<any>(null);
     const [loadingInsights, setLoadingInsights] = useState(true);
     const [generatingReport, setGeneratingReport] = useState(false);
+    const [timeFrame, setTimeFrame] = useState('all');
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
 
     useEffect(() => {
         const fetchInsights = async () => {
+            setLoadingInsights(true);
             try {
-                const { data } = await aiAPI.getInsights();
-                setAiInsights(data);
+                let params: any = {};
+                const now = new Date();
+
+                if (timeFrame === 'yesterday') {
+                    const yesterday = new Date(now);
+                    yesterday.setDate(now.getDate() - 1);
+                    yesterday.setHours(0, 0, 0, 0);
+                    const end = new Date(now);
+                    end.setDate(now.getDate() - 1);
+                    end.setHours(23, 59, 59, 999);
+                    params = { startDate: yesterday.toISOString(), endDate: end.toISOString() };
+                } else if (timeFrame === 'week') {
+                    const weekAgo = new Date(now);
+                    weekAgo.setDate(now.getDate() - 7);
+                    params = { startDate: weekAgo.toISOString() };
+                } else if (timeFrame === 'month') {
+                    const monthAgo = new Date(now);
+                    monthAgo.setMonth(now.getMonth() - 1);
+                    params = { startDate: monthAgo.toISOString() };
+                } else if (timeFrame === '3months') {
+                    const threeMonthsAgo = new Date(now);
+                    threeMonthsAgo.setMonth(now.getMonth() - 3);
+                    params = { startDate: threeMonthsAgo.toISOString() };
+                } else if (timeFrame === 'custom' && customStartDate && customEndDate) {
+                    params = { startDate: new Date(customStartDate).toISOString(), endDate: new Date(customEndDate).toISOString() };
+                }
+
+                if (timeFrame !== 'custom' || (customStartDate && customEndDate)) {
+                    const { data } = await aiAPI.getInsights(params);
+                    setAiInsights(data);
+                }
             } catch (error) {
                 console.error('Failed to load insights', error);
             } finally {
                 setLoadingInsights(false);
             }
         };
+
         fetchInsights();
-    }, []);
+    }, [timeFrame, customStartDate, customEndDate]);
 
     const handleGenerateReport = async () => {
         setGeneratingReport(true);
@@ -94,18 +128,57 @@ export default function DashboardPage() {
     return (
         <div className="space-y-8">
             {/* Welcome Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            {/* Welcome Header & Controls */}
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
                     <p className="text-muted-foreground">Welcome back! Here's what's happening with your business.</p>
                 </div>
-                <button
-                    onClick={handleGenerateReport}
-                    disabled={generatingReport}
-                    className="w-full md:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {generatingReport ? 'Generating...' : 'Generate Report'}
-                </button>
+
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full xl:w-auto">
+                    {/* Time Frame Selector */}
+                    <div className="flex items-center gap-2 bg-card border px-3 py-2 rounded-xl shadow-sm">
+                        <Calendar size={18} className="text-muted-foreground" />
+                        <select
+                            value={timeFrame}
+                            onChange={(e) => setTimeFrame(e.target.value)}
+                            className="bg-transparent border-none text-sm font-medium outline-none cursor-pointer"
+                        >
+                            <option value="all">All Time</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="week">Past Week</option>
+                            <option value="month">Past Month</option>
+                            <option value="3months">Past 3 Months</option>
+                            <option value="custom">Custom Period</option>
+                        </select>
+                    </div>
+
+                    {timeFrame === 'custom' && (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="date"
+                                value={customStartDate}
+                                onChange={(e) => setCustomStartDate(e.target.value)}
+                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+                            />
+                            <span className="text-muted-foreground">-</span>
+                            <input
+                                type="date"
+                                value={customEndDate}
+                                onChange={(e) => setCustomEndDate(e.target.value)}
+                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+                            />
+                        </div>
+                    )}
+
+                    <button
+                        onClick={handleGenerateReport}
+                        disabled={generatingReport}
+                        className="whitespace-nowrap bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {generatingReport ? 'Generating...' : 'Generate Report'}
+                    </button>
+                </div>
             </div>
 
             {/* Stats Grid */}

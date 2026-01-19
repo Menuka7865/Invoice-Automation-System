@@ -1,5 +1,5 @@
 'use client'
-import { Plus, Search, FileText, Download, Send, CheckCircle, Clock, XCircle, MoreHorizontal, Loader2, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, Download, Send, CheckCircle, Clock, XCircle, MoreHorizontal, Loader2, Trash2, Edit2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { useQuotations } from '@/hooks/useInvoices';
 import Link from 'next/link';
@@ -89,7 +89,7 @@ export default function QuotationsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    
+
                 </div>
 
                 {/* Table */}
@@ -98,7 +98,7 @@ export default function QuotationsPage() {
                         <thead className="bg-muted/30">
                             <tr className="text-muted-foreground text-[11px] uppercase tracking-wider">
                                 <th className="px-8 py-4 font-bold">Quote Number</th>
-                                <th className="px-8 py-4 font-bold">Customer</th>
+                                <th className="px-8 py-4 font-bold">Company</th>
                                 <th className="px-8 py-4 font-bold">Created Date</th>
                                 <th className="px-8 py-4 font-bold">Total Amount</th>
                                 <th className="px-8 py-4 font-bold">Status</th>
@@ -133,7 +133,7 @@ export default function QuotationsPage() {
                                         {typeof quote.customer === 'object' ? (quote.customer?.name || 'N/A') : (quote.customer || 'N/A')}
                                     </td>
                                     <td className="px-8 py-5 text-sm text-muted-foreground">{formatDate(quote.createdAt)}</td>
-                                    <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total)}</td>
+                                    <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total, quote.currency)}</td>
                                     <td className="px-8 py-5">
                                         <div className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(quote.status)}`}>
                                             {getStatusIcon(quote.status)}
@@ -160,6 +160,13 @@ export default function QuotationsPage() {
                                                     <CheckCircle size={16} />
                                                 </button>
                                             )}
+                                            <Link
+                                                href={`/quotations/${quote._id}`}
+                                                className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
+                                                title="Edit Quotation"
+                                            >
+                                                <Edit2 size={16} />
+                                            </Link>
                                             <button
                                                 onClick={() => downloadPdf(quote._id)}
                                                 className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"

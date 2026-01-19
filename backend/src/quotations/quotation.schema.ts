@@ -23,6 +23,9 @@ export class Quotation extends Document {
   @Prop({ default: Date.now })
   date: string;
 
+  @Prop({ default: 'USD' })
+  currency: string;
+
   @Prop()
   templateName: string;
 }

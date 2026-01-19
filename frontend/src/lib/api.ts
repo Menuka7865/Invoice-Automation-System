@@ -76,8 +76,9 @@ export const companyAPI = {
 };
 
 // AI API
+// AI API
 export const aiAPI = {
-    getInsights: () => api.get('/ai/insights'),
+    getInsights: (params?: { startDate?: string; endDate?: string }) => api.get('/ai/insights', { params }),
     downloadReport: () => api.get('/ai/report', { responseType: 'blob' }),
 };
 
