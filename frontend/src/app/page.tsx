@@ -9,7 +9,7 @@ export default function LandingPage() {
     <div className="bg-background min-h-screen">
       {/* Navigation */}
       <nav className="p-4 md:p-6 border-b max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        <span className="text-2xl font-bold text-black">InvAuto</span>
+        <span className="text-2xl font-bold text-black">Fishifox</span>
         <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm font-medium">
           <Link href="#features" className="hover:text-primary transition-colors">Features</Link>
           {/* <Link href="#pricing" className="hover:text-primary transition-colors">Pricing</Link> */}

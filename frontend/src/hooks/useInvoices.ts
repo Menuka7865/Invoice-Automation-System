@@ -90,11 +90,21 @@ export function useInvoices() {
         }
     };
 
+    const sendInvoice = async (id: string) => {
+        try {
+            await invoicesAPI.sendEmail(id);
+            toast.success('Invoice sent to customer email');
+            fetchInvoices();
+        } catch (error: any) {
+            toast.error('Failed to send invoice email');
+        }
+    };
+
     useEffect(() => {
         fetchInvoices();
     }, []);
 
-    return { invoices, loading, fetchInvoices, createInvoice, updateInvoice, deleteInvoice, downloadPdf };
+    return { invoices, loading, fetchInvoices, createInvoice, updateInvoice, deleteInvoice, downloadPdf, sendInvoice };
 }
 
 export function useQuotations() {

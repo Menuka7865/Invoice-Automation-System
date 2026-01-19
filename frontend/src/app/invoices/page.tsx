@@ -12,7 +12,7 @@ export default function InvoicesPage() {
     const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { invoices, loading, fetchInvoices, deleteInvoice, updateInvoice, downloadPdf } = useInvoices();
+    const { invoices, loading, fetchInvoices, deleteInvoice, updateInvoice, downloadPdf, sendInvoice } = useInvoices();
 
     const filteredInvoices = invoices.filter((inv: any) => {
         const matchesSearch =
@@ -61,7 +61,7 @@ export default function InvoicesPage() {
 
                 </div>
 
-                
+
             </div>
 
             <CreateInvoiceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
@@ -95,21 +95,21 @@ export default function InvoicesPage() {
                         />
                     </div>
                     {/* Tabs */}
-                <div className="flex gap-2 p-1 bg-muted/50 rounded-2xl w-fit border border-border/40">
-                    {['All', 'Draft', 'Sent', 'Paid', 'Overdue'].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === tab
+                    <div className="flex gap-2 p-1 bg-muted/50 rounded-2xl w-fit border border-border/40">
+                        {['All', 'Draft', 'Sent', 'Paid', 'Overdue'].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeTab === tab
                                     ? 'bg-card text-primary shadow-sm'
                                     : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-                    
+                                    }`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
+
                 </div>
 
                 <div className="overflow-x-auto">
@@ -184,7 +184,13 @@ export default function InvoicesPage() {
                                                 >
                                                     <Download size={16} />
                                                 </button>
-                                                <button className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors" title="Send Reminder"><Send size={16} /></button>
+                                                <button
+                                                    onClick={() => sendInvoice(inv._id)}
+                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
+                                                    title="Send to Customer"
+                                                >
+                                                    <Send size={16} />
+                                                </button>
                                                 <button
                                                     onClick={() => deleteInvoice(inv._id)}
                                                     className="p-2 hover:bg-destructive/10 rounded-lg text-destructive transition-colors"

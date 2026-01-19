@@ -43,4 +43,9 @@ export class InvoicesController {
       res.status(500).json({ message: 'Error generating PDF', error: error.message });
     }
   }
+
+  @Post(':id/send')
+  sendEmail(@Param('id') id: string) {
+    return this.svc.sendEmail(id);
+  }
 }

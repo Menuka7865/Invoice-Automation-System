@@ -41,7 +41,7 @@ export default function Sidebar() {
         )}>
             <div className="flex items-center justify-between p-4 h-16 border-b">
                 {sidebarOpen && (
-                    <span className="text-xl font-bold text-black">InvAuto</span>
+                    <span className="text-xl font-bold text-black">Fishifox</span>
                 )}
                 <button
                     onClick={toggleSidebar}

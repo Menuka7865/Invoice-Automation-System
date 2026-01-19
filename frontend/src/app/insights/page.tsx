@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, Cell, AreaChart, Area, ScatterChart, Scatter, ZAxis
@@ -10,6 +11,7 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { aiAPI } from '@/lib/api';
 
 const forecastData = [
     { name: 'Week 1', actual: 4000, predicted: 4200 },
@@ -19,15 +21,26 @@ const forecastData = [
     { name: 'Week 5', actual: null, predicted: 5800 },
 ];
 
-const riskData = [
-    { name: 'Acme Corp', score: 15, value: 5000 },
-    { name: 'Global Tech', score: 45, value: 12000 },
-    { name: 'Nexus Soft', score: 85, value: 3500 },
-    { name: 'Stellar Inc', score: 10, value: 8000 },
-    { name: 'Mega Corp', score: 65, value: 15000 },
-];
-
 export default function InsightsPage() {
+    const [aiInsights, setAiInsights] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchAnalysis = async () => {
+        setLoading(true);
+        try {
+            const { data } = await aiAPI.getInsights();
+            setAiInsights(data);
+        } catch (error) {
+            console.error('Failed to load insights', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchAnalysis();
+    }, []);
+
     return (
         <div className="space-y-10 pb-20">
             <div className="flex justify-between items-end">
@@ -41,8 +54,13 @@ export default function InsightsPage() {
                     <h1 className="text-4xl font-extrabold tracking-tight">Financial Insights</h1>
                     <p className="text-muted-foreground mt-1">Predictive analytics and smart recommendations for your business.</p>
                 </div>
-                <button className="flex items-center gap-2 bg-primary text-black px-6 py-3 rounded-2xl font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all">
-                    <BrainCircuit size={20} /> Refresh AI Analysis
+                <button
+                    onClick={fetchAnalysis}
+                    disabled={loading}
+                    className="flex items-center gap-2 bg-primary text-black px-6 py-3 rounded-2xl font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <BrainCircuit size={20} className={loading ? "animate-pulse" : ""} />
+                    {loading ? "Analyzing..." : "Refresh AI Analysis"}
                 </button>
             </div>
 
@@ -86,69 +104,49 @@ export default function InsightsPage() {
                     <div className="bg-emerald-500 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-500/10">
                         <div className="flex items-center gap-3 mb-4">
                             <Target size={24} className="text-emerald-100" />
-                            <h4 className="font-bold text-lg">Cash Flow Tip</h4>
+                            <h4 className="font-bold text-lg">Smart Insights</h4>
                         </div>
-                        <p className="text-emerald-50/90 leading-relaxed mb-6">
-                            Invoicing on Tuesdays instead of Fridays could improve your collection speed by <span className="font-black">18%</span> based on past data.
-                        </p>
+                        <div className="text-emerald-50/90 leading-relaxed mb-6 whitespace-pre-line">
+                            {loading ? (
+                                <div className="space-y-2 animate-pulse">
+                                    <div className="h-4 bg-emerald-400/30 rounded w-full"></div>
+                                    <div className="h-4 bg-emerald-400/30 rounded w-5/6"></div>
+                                    <div className="h-4 bg-emerald-400/30 rounded w-4/6"></div>
+                                </div>
+                            ) : aiInsights?.insights || "No specific insights available at the moment."}
+                        </div>
                         <button className="flex items-center gap-2 text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all">
-                            Apply Strategy <ArrowRight size={16} />
+                            View Details <ArrowRight size={16} />
                         </button>
                     </div>
 
-                    {/* <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
+                    <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
                         <div className="flex items-center gap-3 mb-6">
                             <Lightbulb size={24} className="text-amber-500" />
-                            <h4 className="font-bold text-lg">Optimization</h4>
+                            <h4 className="font-bold text-lg">Business Recommendations</h4>
                         </div>
-                        <div className="space-y-4">
-                            <div className="p-4 bg-muted rounded-2xl border border-dashed text-sm">
-                                <p className="font-bold mb-1">Tax Savings</p>
-                                <p className="text-muted-foreground">AI detected $1,240 in unclaimed VAT from international invoices.</p>
-                            </div>
-                            <button className="w-full py-3 rounded-2xl bg-primary/5 text-primary font-bold text-sm hover:bg-primary/10 transition-all">
-                                Generate Report
-                            </button>
+                        <div className="space-y-4 text-sm text-muted-foreground">
+                            {loading ? (
+                                <div className="space-y-3 animate-pulse">
+                                    <div className="h-8 bg-muted rounded-2xl w-full"></div>
+                                    <div className="h-8 bg-muted rounded-2xl w-full"></div>
+                                </div>
+                            ) : (
+                                aiInsights?.recommendations?.length > 0 ? (
+                                    aiInsights.recommendations.map((rec: string, idx: number) => (
+                                        <div key={idx} className="p-4 bg-muted/50 rounded-2xl border border-dashed flex gap-2">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                                            {rec}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>Based on your current data, focus on maintaining healthy client relationships and ensuring timely payments.</p>
+                                )
+                            )}
                         </div>
-                    </div> */}
+                    </div>
                 </div>
             </div>
-
-            {/* Customer Risk Matrix */}
-            {/* <div className="bg-card p-8 rounded-[2.5rem] border shadow-sm">
-                <h3 className="text-xl font-bold mb-8 flex items-center gap-2">
-                    <AlertTriangle size={20} className="text-destructive" /> Payment Risk Matrix
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    {riskData.map((customer, i) => (
-                        <motion.div
-                            whileHover={{ y: -5 }}
-                            key={i}
-                            className="p-6 rounded-3xl border bg-muted/30 flex flex-col items-center text-center space-y-4"
-                        >
-                            <div className="relative">
-                                <svg className="w-20 h-20 transform -rotate-90">
-                                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-muted" />
-                                    <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent"
-                                        strokeDasharray={2 * Math.PI * 36}
-                                        strokeDashoffset={2 * Math.PI * 36 * (1 - customer.score / 100)}
-                                        className={customer.score > 70 ? 'text-destructive' : customer.score > 30 ? 'text-amber-500' : 'text-emerald-500'}
-                                    />
-                                </svg>
-                                <span className="absolute inset-0 flex items-center justify-center font-black text-xs">{customer.score}%</span>
-                            </div>
-                            <div>
-                                <p className="font-bold text-sm">{customer.name}</p>
-                                <p className="text-[10px] uppercase text-muted-foreground font-bold mt-1">Exposure: {formatCurrency(customer.value)}</p>
-                            </div>
-                            <div className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${customer.score > 70 ? 'bg-destructive/10 text-destructive' : 'bg-emerald-500/10 text-emerald-500'
-                                }`}>
-                                {customer.score > 70 ? 'High Risk' : 'Healthy'}
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-            </div> */}
         </div>
     );
 }

@@ -37,6 +37,7 @@ export const invoicesAPI = {
     update: (id: string, data: any) => api.put(`/invoices/${id}`, data),
     delete: (id: string) => api.delete(`/invoices/${id}`),
     downloadPdf: (id: string) => api.get(`/invoices/${id}/pdf`, { responseType: 'blob' }),
+    sendEmail: (id: string) => api.post(`/invoices/${id}/send`),
 };
 
 // Quotations API
