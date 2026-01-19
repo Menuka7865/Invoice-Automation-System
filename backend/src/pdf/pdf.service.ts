@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
+import { CompanyService } from '../company/company.service';
 
 @Injectable()
 export class PdfService {
+  constructor(private readonly companyService: CompanyService) { }
+
   async generateInvoicePdf(invoice: any) {
-    return this.generateRichPdf('INVOICE', invoice);
+    const company = await this.companyService.getProfile();
+    return this.generateRichPdf('INVOICE', invoice, company);
   }
 
   async generateQuotationPdf(quotation: any) {
-    return this.generateRichPdf('QUOTATION', quotation);
+    const company = await this.companyService.getProfile();
+    return this.generateRichPdf('QUOTATION', quotation, company);
   }
 
-  private async generateRichPdf(title: string, data: any) {
+  private async generateRichPdf(title: string, data: any, company: any) {
     const doc = new PDFDocument({ margin: 50 });
     const chunks: Buffer[] = [];
     doc.on('data', (d) => chunks.push(d));
@@ -22,9 +27,10 @@ export class PdfService {
     const ref = `${prefix}-${year}-${data._id.toString().slice(-4).toUpperCase()}`;
 
     // Logo & Header
-    if (data.logo) {
+    const logoToUse = data.logo || company.logo;
+    if (logoToUse) {
       try {
-        const logoData = data.logo.replace(/^data:image\/\w+;base64,/, '');
+        const logoData = logoToUse.replace(/^data:image\/\w+;base64,/, '');
         doc.image(Buffer.from(logoData, 'base64'), 50, 45, { width: 60 });
       } catch (e) {
         console.error('Error adding logo to PDF', e);
@@ -66,10 +72,11 @@ export class PdfService {
       .text(customerAddress, 50, infoY + 62);
 
     doc.fontSize(12).fillColor('#0f172a').font('Helvetica-Bold')
-      .text('Innovation Drive Co.', 320, infoY + 15)
+      .text(company.name || 'Your Company Name', 320, infoY + 15)
       .font('Helvetica').fontSize(10).fillColor('#64748b')
-      .text('123 Innovation Drive, SV, CA', 320, infoY + 32)
-      .text('contact@innovationdrive.co', 320, infoY + 47);
+      .text(company.address || '', 320, infoY + 32)
+      .text(company.email || '', 320, infoY + 47)
+      .text(company.phone || '', 320, infoY + 62);
 
     // Table Header
     const tableHeaderY = 280;
@@ -137,7 +144,7 @@ export class PdfService {
 
     // Footer
     doc.fontSize(8).fillColor('#94a3b8').font('Helvetica-Oblique')
-      .text('Thank you for choosing Innovation Drive Co.', 0, 750, { align: 'center' });
+      .text(`Thank you for choosing ${company.name || 'us'}.`, 0, 750, { align: 'center' });
 
     doc.end();
     await new Promise((res) => doc.on('end', res));

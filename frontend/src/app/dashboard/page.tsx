@@ -137,7 +137,7 @@ export default function DashboardPage() {
             {/* Main Chart */}
             <div className="bg-card p-8 rounded-3xl border shadow-sm">
                 <div className="flex justify-between items-center mb-8">
-                    <h3 className="font-bold text-lg">Revenue vs Expenses</h3>
+                    <h3 className="font-bold text-lg">Revenue</h3>
                     <select className="bg-muted border-none rounded-lg text-sm px-3 py-1 outline-none" title='option' >
                         <option>Last 6 months</option>
                         <option>Last 12 months</option>
