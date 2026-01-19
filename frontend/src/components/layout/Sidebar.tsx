@@ -20,12 +20,13 @@ import { cn } from '@/lib/utils';
 
 const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+    { icon: Briefcase, label: 'Projects', href: '/projects' },
     { icon: Briefcase, label: 'Services', href: '/services' },
     { icon: Users, label: 'Customers', href: '/customers' },
     { icon: FileText, label: 'Quotations', href: '/quotations' },
     { icon: Receipt, label: 'Invoices', href: '/invoices' },
     { icon: TrendingUp, label: 'AI Insights', href: '/insights' },
-    { icon: Mail, label: 'Automation', href: '/automation' },
+    // { icon: Mail, label: 'Automation', href: '/automation' },
     { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 

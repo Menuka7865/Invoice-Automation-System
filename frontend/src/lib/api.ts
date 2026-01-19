@@ -60,6 +60,15 @@ export const servicesAPI = {
     delete: (id: string) => api.delete(`/services/${id}`),
 };
 
+// Projects API
+export const projectsAPI = {
+    create: (data: any) => api.post('/projects', data),
+    list: () => api.get('/projects'),
+    getById: (id: string) => api.get(`/projects/${id}`),
+    update: (id: string, data: any) => api.put(`/projects/${id}`, data),
+    delete: (id: string) => api.delete(`/projects/${id}`),
+};
+
 // Company API
 export const companyAPI = {
     get: () => api.get('/company'),

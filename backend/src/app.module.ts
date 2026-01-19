@@ -14,6 +14,7 @@ import { AutomationModule } from './automation/automation.module';
 import { AiModule } from './ai/ai.module';
 import { ServicesModule } from './services/services.module';
 import { CompanyModule } from './company/company.module';
+import { ProjectsModule } from './projects/projects.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CompanyModule } from './company/company.module';
     AiModule,
     ServicesModule,
     CompanyModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
