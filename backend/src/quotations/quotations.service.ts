@@ -65,7 +65,10 @@ export class QuotationsService {
     const customer = quotation.customer as any;
 
     // Determine recipients
-    const toAddresses = recipients.length > 0 ? recipients : [customer?.email].filter(Boolean);
+    const rawRecipients = recipients.length > 0 ? recipients : [customer?.email];
+    // Remove duplicates and filter falsy values
+    const toAddresses = [...new Set(rawRecipients)].filter(Boolean);
+
     if (toAddresses.length === 0) throw new Error('No recipients found');
 
     const pdf = await this.generatePdf(id); // Use default options for email attachment

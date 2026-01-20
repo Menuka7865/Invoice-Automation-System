@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Save, Building2, Mail, Phone, Globe, MapPin, DollarSign, Percent, FileText } from 'lucide-react';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile';
+import { div } from 'framer-motion/client';
 
 export default function SettingsPage() {
     const { profile, loading, updateProfile } = useCompanyProfile();
@@ -16,7 +17,8 @@ export default function SettingsPage() {
             address: '',
             taxRate: 0,
             currency: 'USD',
-            pdfHeaderImage: null as string | null
+            pdfHeaderImage: null as string | null,
+            logo: null as string | null
         }
     });
 
@@ -32,7 +34,8 @@ export default function SettingsPage() {
                 address: profile.address || '',
                 taxRate: profile.taxRate || 0,
                 currency: profile.currency || 'USD',
-                pdfHeaderImage: profile.pdfHeaderImage || null
+                pdfHeaderImage: profile.pdfHeaderImage || null,
+                logo: profile.logo || null
             });
         }
     }, [profile, reset]);
@@ -60,6 +63,39 @@ export default function SettingsPage() {
                     <h2 className="text-xl font-bold flex items-center gap-2">
                         <Building2 className="text-primary" size={24} /> Company Profile
                     </h2>
+
+                    {/* Logo Upload */}
+                    <div className="flex flex-col items-center justify-center sm:items-start space-y-3">
+                        <label className="text-sm font-medium">Company Logo</label>
+                        <div className="relative group w-24 h-24 rounded-full border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-colors">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                            setValue('logo', event.target?.result as string);
+                                        };
+                                        reader.readAsDataURL(e.target.files[0]);
+                                    }
+                                }}
+                            />
+                            {watch('logo') ? (
+                                <img src={watch('logo') as string} alt="Company Logo" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center p-2">
+                                    <Building2 className="w-8 h-8 text-muted-foreground/50 mx-auto" />
+                                    <span className="text-[10px] text-muted-foreground block mt-1">Upload</span>
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-xs text-white font-medium">Change</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Company Name</label>
@@ -199,6 +235,6 @@ export default function SettingsPage() {
                     </button>
                 </div>
             </form>
-        </div>
+        </div >
     );
 }

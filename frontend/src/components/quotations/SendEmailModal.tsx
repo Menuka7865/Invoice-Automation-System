@@ -23,14 +23,23 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
 
     if (!isOpen) return null;
 
-    const contacts = customer?.contactPersons || [];
+    const contacts = customer?.contacts || [];
     const mainEmail = customer?.email;
+    const allEmails = [mainEmail, ...contacts.map((c: any) => c.email)].filter(Boolean);
 
     const toggleEmail = (email: string) => {
         if (selectedEmails.includes(email)) {
             setSelectedEmails(prev => prev.filter(e => e !== email));
         } else {
             setSelectedEmails(prev => [...prev, email]);
+        }
+    };
+
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            setSelectedEmails(allEmails);
+        } else {
+            setSelectedEmails([]);
         }
     };
 
@@ -54,7 +63,18 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
                 </div>
 
                 <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">Select recipients for this quotation:</p>
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm text-muted-foreground">Select recipients:</p>
+                        <label className="flex items-center gap-2 text-sm font-medium cursor-pointer hover:text-primary transition-colors">
+                            <input
+                                type="checkbox"
+                                checked={selectedEmails.length === allEmails.length && allEmails.length > 0}
+                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            Select All
+                        </label>
+                    </div>
 
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
                         {/* Main Company Email */}
