@@ -27,6 +27,9 @@ export class CompanyProfile extends Document {
 
     @Prop({ default: 'USD' })
     currency: string;
+
+    @Prop()
+    pdfHeaderImage: string; // Base64 or URL
 }
 
 export const CompanyProfileSchema = SchemaFactory.createForClass(CompanyProfile);

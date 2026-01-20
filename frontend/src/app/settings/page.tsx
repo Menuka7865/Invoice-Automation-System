@@ -2,12 +2,12 @@
 
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, Building2, Mail, Phone, Globe, MapPin, DollarSign, Percent } from 'lucide-react';
+import { Save, Building2, Mail, Phone, Globe, MapPin, DollarSign, Percent, FileText } from 'lucide-react';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 
 export default function SettingsPage() {
     const { profile, loading, updateProfile } = useCompanyProfile();
-    const { register, handleSubmit, setValue, reset } = useForm({
+    const { register, handleSubmit, setValue, reset, watch } = useForm({
         defaultValues: {
             name: '',
             email: '',
@@ -15,9 +15,12 @@ export default function SettingsPage() {
             website: '',
             address: '',
             taxRate: 0,
-            currency: 'USD'
+            currency: 'USD',
+            pdfHeaderImage: null as string | null
         }
     });
+
+    const pdfHeaderImage = watch('pdfHeaderImage');
 
     useEffect(() => {
         if (profile) {
@@ -28,10 +31,13 @@ export default function SettingsPage() {
                 website: profile.website || '',
                 address: profile.address || '',
                 taxRate: profile.taxRate || 0,
-                currency: profile.currency || 'USD'
+                currency: profile.currency || 'USD',
+                pdfHeaderImage: profile.pdfHeaderImage || null
             });
         }
     }, [profile, reset]);
+
+
 
     const onSubmit = async (data: any) => {
         await updateProfile(data);
@@ -146,6 +152,41 @@ export default function SettingsPage() {
                             </div>
                             <p className="text-xs text-muted-foreground">This tax rate will be automatically applied to new quotations.</p>
                         </div>
+                    </div>
+                </div>
+
+                {/* PDF Customization Section */}
+                <div className="bg-card p-8 rounded-3xl border shadow-sm space-y-6">
+                    <h2 className="text-xl font-bold flex items-center gap-2">
+                        <FileText className="text-primary" size={24} /> PDF Customization
+                    </h2>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium">PDF Header Image</label>
+                        <div className="relative w-full h-32 border-2 border-dashed border-muted-foreground/50 rounded-xl flex items-center justify-center overflow-hidden cursor-pointer">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const reader = new FileReader();
+                                        reader.onload = (event) => {
+                                            setValue('pdfHeaderImage', event.target?.result as string);
+                                        };
+                                        reader.readAsDataURL(e.target.files[0]);
+                                    }
+                                }}
+                            />
+                            {pdfHeaderImage ? (
+                                <img src={pdfHeaderImage as string} alt="Header" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="flex flex-col items-center p-4 text-center">
+                                    <FileText className="text-muted-foreground mb-2" />
+                                    <span className="text-xs text-muted-foreground">Click to upload header image</span>
+                                </div>
+                            )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Upload an image to appear in the header of your PDF documents.</p>
                     </div>
                 </div>
 

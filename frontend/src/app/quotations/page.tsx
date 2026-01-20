@@ -4,11 +4,28 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import { useQuotations } from '@/hooks/useInvoices';
 import Link from 'next/link';
 import { useState } from 'react';
+import DownloadOptionsModal from '@/components/quotations/DownloadOptionsModal';
+import SendEmailModal from '@/components/quotations/SendEmailModal';
 
 export default function QuotationsPage() {
     const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const { quotations, loading, acceptQuotation, deleteQuotation, updateQuotation, downloadPdf, sendQuotation } = useQuotations();
+
+    // Modal States
+    const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+    const [sendModalOpen, setSendModalOpen] = useState(false);
+    const [selectedQuotation, setSelectedQuotation] = useState<any>(null);
+
+    const handleDownloadClick = (quote: any) => {
+        setSelectedQuotation(quote);
+        setDownloadModalOpen(true);
+    };
+
+    const handleSendClick = (quote: any) => {
+        setSelectedQuotation(quote);
+        setSendModalOpen(true);
+    };
 
     const tabs = ['All', 'Draft', 'Sent', 'Accepted', 'Declined'];
 
@@ -168,14 +185,14 @@ export default function QuotationsPage() {
                                                 <Edit2 size={16} />
                                             </Link>
                                             <button
-                                                onClick={() => downloadPdf(quote._id)}
+                                                onClick={() => handleDownloadClick(quote)}
                                                 className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                                                 title="Download PDF"
                                             >
                                                 <Download size={16} />
                                             </button>
                                             <button
-                                                onClick={() => sendQuotation(quote._id)}
+                                                onClick={() => handleSendClick(quote)}
                                                 className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                                                 title="Send to Customer"
                                             >
@@ -196,6 +213,19 @@ export default function QuotationsPage() {
                     </table>
                 </div>
             </div>
+
+            <DownloadOptionsModal
+                isOpen={downloadModalOpen}
+                onClose={() => setDownloadModalOpen(false)}
+                onDownload={(options) => downloadPdf(selectedQuotation?._id, options)}
+            />
+
+            <SendEmailModal
+                isOpen={sendModalOpen}
+                onClose={() => setSendModalOpen(false)}
+                onSend={(recipients) => sendQuotation(selectedQuotation?._id, recipients)}
+                customer={selectedQuotation?.customer}
+            />
         </div>
     );
 }

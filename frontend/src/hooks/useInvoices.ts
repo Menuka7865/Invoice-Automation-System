@@ -165,9 +165,9 @@ export function useQuotations() {
         }
     };
 
-    const downloadPdf = async (_id: string) => {
+    const downloadPdf = async (_id: string, options?: any) => {
         try {
-            const { data } = await quotationsAPI.downloadPdf(_id);
+            const { data } = await quotationsAPI.downloadPdf(_id, options);
             const url = window.URL.createObjectURL(new Blob([data]));
             const link = document.createElement('a');
             link.href = url;
@@ -180,10 +180,10 @@ export function useQuotations() {
         }
     };
 
-    const sendQuotation = async (id: string) => {
+    const sendQuotation = async (id: string, recipients?: string[]) => {
         try {
-            await quotationsAPI.sendEmail(id);
-            toast.success('Quotation sent to customer email');
+            await quotationsAPI.sendEmail(id, recipients);
+            toast.success('Quotation sent to recipients');
             fetchQuotations(); // Refresh to see status change if any
         } catch (error: any) {
             toast.error('Failed to send quotation email');

@@ -47,8 +47,13 @@ export const quotationsAPI = {
     getById: (id: string) => api.get(`/quotations/${id}`),
     update: (id: string, data: any) => api.put(`/quotations/${id}`, data),
     delete: (id: string) => api.delete(`/quotations/${id}`),
-    downloadPdf: (id: string) => api.get(`/quotations/${id}/pdf`, { responseType: 'blob' }),
-    sendEmail: (id: string) => api.post(`/quotations/${id}/send`),
+    downloadPdf: (id: string, options?: any) => {
+        if (options && Object.keys(options).length > 0) {
+            return api.post(`/quotations/${id}/download`, options, { responseType: 'blob' });
+        }
+        return api.get(`/quotations/${id}/pdf`, { responseType: 'blob' });
+    },
+    sendEmail: (id: string, recipients?: string[]) => api.post(`/quotations/${id}/send`, { recipients }),
 };
 
 // Services API

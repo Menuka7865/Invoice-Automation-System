@@ -51,20 +51,24 @@ export class QuotationsService {
     return this.model.findById(id).populate('customer').lean();
   }
 
-  async generatePdf(id: string) {
+  async generatePdf(id: string, options: any = {}) {
     const quotation = await this.findById(id);
     if (!quotation) throw new Error('Quotation not found');
     const customer = (quotation.customer as any)?.name || 'Customer';
-    return this.pdfSvc.generateQuotationPdf({ ...quotation, customer });
+    // Pass options down
+    return this.pdfSvc.generateQuotationPdf({ ...quotation, customer, options });
   }
 
-  async sendEmail(id: string) {
+  async sendEmail(id: string, recipients: string[] = []) {
     const quotation = await this.findById(id);
     if (!quotation) throw new Error('Quotation not found');
     const customer = quotation.customer as any;
-    if (!customer?.email) throw new Error('Customer email not found');
 
-    const pdf = await this.generatePdf(id);
+    // Determine recipients
+    const toAddresses = recipients.length > 0 ? recipients : [customer?.email].filter(Boolean);
+    if (toAddresses.length === 0) throw new Error('No recipients found');
+
+    const pdf = await this.generatePdf(id); // Use default options for email attachment
     const baseUrl = process.env.APP_URL || 'http://localhost:5000';
     const acceptUrl = `${baseUrl}/quotations/${id}/accept`;
     const declineUrl = `${baseUrl}/quotations/${id}/decline`;
@@ -88,7 +92,7 @@ export class QuotationsService {
     `;
 
     await this.emailSvc.sendHtmlMailWithAttachment(
-      customer.email,
+      toAddresses.join(','),
       `Quotation from Invoice System`,
       html,
       `quotation-${id}.pdf`,

@@ -19,15 +19,21 @@ export class QuotationsController {
   }
 
   @Post(':id/send')
-  sendEmail(@Param('id') id: string) {
-    return this.svc.sendEmail(id);
+  sendEmail(@Param('id') id: string, @Body() body: { recipients?: string[] }) {
+    return this.svc.sendEmail(id, body?.recipients || []);
   }
 
-  @Get(':id/pdf')
-  async getPdf(@Param('id') id: string, @Res() res: any) {
-    console.log('Generating PDF for quotation:', id);
+  // Changed to POST to accept extensive options if needed, or stick to GET with Query if simple. 
+  // User asked for "selected pdf heading", "designed header". This implies potentially large data (image).
+  // Let's support both or just POST for "Download with Options".
+  // Actually, browsers trigger download easier with GET. 
+  // But if we are "designing" a header, we might need to send a payload.
+  // Let's add a NEW endpoint for downloading with custom options.
+  @Post(':id/download')
+  async downloadPdf(@Param('id') id: string, @Body() body: any, @Res() res: any) {
+    console.log('Generating customized PDF for quotation:', id);
     try {
-      const pdf = await this.svc.generatePdf(id);
+      const pdf = await this.svc.generatePdf(id, body); // body contains { headerTitle, headerImage }
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=quotation-${id}.pdf`);
       res.setHeader('Content-Length', pdf.length);
@@ -36,6 +42,12 @@ export class QuotationsController {
       console.error('Error generating PDF:', error);
       res.status(500).json({ message: 'Error generating PDF', error: error.message });
     }
+  }
+
+  @Get(':id/pdf')
+  async getPdf(@Param('id') id: string, @Res() res: any) {
+    // Default download
+    return this.downloadPdf(id, {}, res);
   }
 
   @Get(':id')

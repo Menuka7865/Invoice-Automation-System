@@ -27,24 +27,39 @@ export class PdfService {
     const ref = `${prefix}-${year}-${data._id.toString().slice(-4).toUpperCase()}`;
 
     // Logo & Header
-    const logoToUse = data.logo || company.logo;
-    if (logoToUse) {
+    const customHeaderImage = (data.options?.headerImage) || company.pdfHeaderImage;
+    if (customHeaderImage) {
+      // If full header image provided, use that instead of text/logo
       try {
-        const logoData = logoToUse.replace(/^data:image\/\w+;base64,/, '');
-        doc.image(Buffer.from(logoData, 'base64'), 50, 45, { width: 60 });
+        const imgData = customHeaderImage.replace(/^data:image\/\w+;base64,/, '');
+        doc.image(Buffer.from(imgData, 'base64'), 40, 40, { width: 520 }); // Full width header
+        doc.moveDown(4); // Move down past header
       } catch (e) {
-        console.error('Error adding logo to PDF', e);
+        console.error('Error adding header image', e);
       }
-    }
+    } else {
+      // Standard Header
+      const logoToUse = data.logo || company.logo;
+      if (logoToUse) {
+        try {
+          const logoData = logoToUse.replace(/^data:image\/\w+;base64,/, '');
+          doc.image(Buffer.from(logoData, 'base64'), 50, 45, { width: 60 });
+        } catch (e) {
+          console.error('Error adding logo to PDF', e);
+        }
+      }
 
-    doc.fillColor('#1e293b') // slate-800
-      .fontSize(24)
-      .text(title, 110, 50, { align: 'right' })
-      .fontSize(10)
-      .fillColor('#64748b') // slate-500
-      .text(`REF: ${ref}`, 200, 80, { align: 'right' })
-      .text(`Date: ${dateStr}`, 200, 95, { align: 'right' })
-      .moveDown();
+      const displayTitle = data.options?.headerTitle || title;
+
+      doc.fillColor('#1e293b') // slate-800
+        .fontSize(24)
+        .text(displayTitle, 110, 50, { align: 'right' })
+        .fontSize(10)
+        .fillColor('#64748b') // slate-500
+        .text(`REF: ${ref}`, 200, 80, { align: 'right' })
+        .text(`Date: ${dateStr}`, 200, 95, { align: 'right' })
+        .moveDown();
+    }
 
     // Gray line
     doc.strokeColor('#f1f5f9') // slate-100
