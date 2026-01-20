@@ -21,6 +21,12 @@ export class CompanyProfile extends Document {
 
     @Prop()
     logo: string;
+
+    @Prop({ default: 0 })
+    taxRate: number;
+
+    @Prop({ default: 'USD' })
+    currency: string;
 }
 
 export const CompanyProfileSchema = SchemaFactory.createForClass(CompanyProfile);
