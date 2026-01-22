@@ -15,6 +15,11 @@ export class ProjectsController {
         return this.projectsService.findAll();
     }
 
+    @Get('customer/:customerId')
+    findByCustomer(@Param('customerId') customerId: string) {
+        return this.projectsService.findByCustomer(customerId);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string) {
         return this.projectsService.findById(id);

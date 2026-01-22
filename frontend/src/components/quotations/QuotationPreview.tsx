@@ -16,20 +16,31 @@ interface QuotationPreviewProps {
         items: Array<{ description: string; quantity: number; price: number }>;
         taxRate: number;
         logo?: string | null;
+        currency?: string;
     };
+    company?: {
+        name: string;
+        address: string;
+        email: string;
+        phone: string;
+        logo?: string;
+    } | null;
     subtotal: number;
     tax: number;
     total: number;
 }
 
-export default function QuotationPreview({ data, subtotal, tax, total }: QuotationPreviewProps) {
+export default function QuotationPreview({ data, company, subtotal, tax, total }: QuotationPreviewProps) {
+    const currency = data.currency || 'USD';
+    const logoToUse = data.logo || company?.logo;
+
     return (
         <div className="bg-white text-slate-900 p-8 rounded-2xl shadow-inner min-h-[600px] flex flex-col font-sans">
             {/* Header / Logo */}
             <div className="flex justify-between items-start mb-12 border-b pb-8 border-slate-100">
                 <div className="flex items-center gap-4">
-                    {data.logo ? (
-                        <img src={data.logo} alt="Company Logo" className="w-24 h-24 object-contain" />
+                    {logoToUse ? (
+                        <img src={logoToUse} alt="Company Logo" className="w-24 h-24 object-contain" />
                     ) : (
                         <div className="w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200">
                             <Building2 className="text-slate-400" size={32} />
@@ -65,8 +76,10 @@ export default function QuotationPreview({ data, subtotal, tax, total }: Quotati
                     <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
                         <FileText size={14} /> From Company
                     </h4>
-                    <p className="text-lg font-bold">Innovation Drive Co.</p>
-                    <p className="text-sm text-slate-500 mt-1">123 Innovation Drive, SV, CA</p>
+                    <p className="text-lg font-bold">{company?.name || "Innovation Drive Co."}</p>
+                    <p className="text-sm text-slate-500 mt-1">{company?.address || "123 Innovation Drive, SV, CA"}</p>
+                    {company?.email && <p className="text-sm text-slate-500">{company.email}</p>}
+                    {company?.phone && <p className="text-sm text-slate-500">{company.phone}</p>}
                 </div>
             </div>
 
@@ -86,8 +99,8 @@ export default function QuotationPreview({ data, subtotal, tax, total }: Quotati
                             <tr key={idx} className="border-b border-slate-100">
                                 <td className="py-4 font-bold">{item.description || "Unspecified Item"}</td>
                                 <td className="py-4 text-center">{item.quantity}</td>
-                                <td className="py-4 text-right">{formatCurrency(item.price)}</td>
-                                <td className="py-4 text-right font-bold">{formatCurrency(item.quantity * item.price)}</td>
+                                <td className="py-4 text-right">{formatCurrency(item.price, currency)}</td>
+                                <td className="py-4 text-right font-bold">{formatCurrency(item.quantity * item.price, currency)}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -99,22 +112,22 @@ export default function QuotationPreview({ data, subtotal, tax, total }: Quotati
                 <div className="w-64 space-y-3">
                     <div className="flex justify-between text-sm">
                         <span className="font-medium text-slate-500 uppercase tracking-widest">Subtotal</span>
-                        <span className="font-bold">{formatCurrency(subtotal)}</span>
+                        <span className="font-bold">{formatCurrency(subtotal, currency)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="font-medium text-slate-500 uppercase tracking-widest">Tax ({data.taxRate}%)</span>
-                        <span className="font-bold">{formatCurrency(tax)}</span>
+                        <span className="font-bold">{formatCurrency(tax, currency)}</span>
                     </div>
                     <div className="flex justify-between text-xl border-t border-slate-900 pt-4">
                         <span className="font-black uppercase tracking-tighter">Total</span>
-                        <span className="font-black text-slate-900">{formatCurrency(total)}</span>
+                        <span className="font-black text-slate-900">{formatCurrency(total, currency)}</span>
                     </div>
                 </div>
             </div>
 
             {/* Footer */}
             <div className="mt-12 text-[10px] text-slate-400 font-medium uppercase tracking-[0.2em] text-center italic">
-                Thank you for choosing Innovation Drive Co.
+                Thank you for choosing {company?.name || "Innovation Drive Co."}
             </div>
         </div>
     );

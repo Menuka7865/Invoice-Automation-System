@@ -14,6 +14,7 @@ import { useCustomers } from '@/hooks/useCustomers';
 import { useQuotations } from '@/hooks/useInvoices';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile'; // New hook
 import { useServices } from '@/hooks/useServices'; // New hook
+import { useProjects } from '@/hooks/useProjects'; // New hook
 import AddCompanyModal from '@/components/customers/AddCompanyModal';
 
 export default function NewQuotationPage() {
@@ -22,6 +23,7 @@ export default function NewQuotationPage() {
     const { createQuotation } = useQuotations();
     const { profile: companyProfile } = useCompanyProfile();
     const { services, createService, fetchServices } = useServices();
+    const { projects, fetchProjectsByCustomer } = useProjects();
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isAddCompanyOpen, setIsAddCompanyOpen] = useState(false);
@@ -42,6 +44,7 @@ export default function NewQuotationPage() {
             items: [{ description: '', quantity: 1, price: 0 }],
             taxRate: 0,
             includeTax: true,
+            project: '',
             currency: 'USD',
             logo: null, // Kept for schema compatibility but hidden from UI
             version: '1.0'
@@ -56,6 +59,15 @@ export default function NewQuotationPage() {
             if (companyProfile.taxRate !== undefined) setValue('taxRate', companyProfile.taxRate);
         }
     }, [companyProfile, setValue]);
+
+    // Fetch projects when customer changes
+    const selectedCustomer = watch('customer');
+    useEffect(() => {
+        if (selectedCustomer) {
+            fetchProjectsByCustomer(selectedCustomer);
+            setValue('project', ''); // Reset project when customer changes
+        }
+    }, [selectedCustomer, setValue]);
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -193,6 +205,19 @@ export default function NewQuotationPage() {
                                         <Plus size={20} />
                                     </button>
                                 </div>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium">Select Project (Optional)</label>
+                                <select
+                                    {...register('project')}
+                                    disabled={!selectedCustomer}
+                                    className="w-full bg-muted/50 border border-transparent rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/20 transition-all font-sans disabled:opacity-50"
+                                >
+                                    <option value="">Select a project...</option>
+                                    {projects.map((p: any) => (
+                                        <option key={p._id} value={p._id}>{p.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm font-medium">Quotation Date</label>
@@ -396,6 +421,7 @@ export default function NewQuotationPage() {
                         customerId: formData.customer,
                         customer: customers.find((c: any) => c._id === formData.customer),
                     }}
+                    company={companyProfile}
                     subtotal={subtotal}
                     tax={tax}
                     total={total}

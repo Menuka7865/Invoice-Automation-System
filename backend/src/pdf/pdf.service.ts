@@ -27,13 +27,14 @@ export class PdfService {
     const ref = `${prefix}-${year}-${data._id.toString().slice(-4).toUpperCase()}`;
 
     // Logo & Header
-    const customHeaderImage = (data.options?.headerImage) || company.pdfHeaderImage;
+    let separatorY = 125;
+    const customHeaderImage = data.options?.headerImage;
     if (customHeaderImage) {
       // If full header image provided, use that instead of text/logo
       try {
         const imgData = customHeaderImage.replace(/^data:image\/\w+;base64,/, '');
-        doc.image(Buffer.from(imgData, 'base64'), 40, 40, { width: 520 }); // Full width header
-        doc.moveDown(4); // Move down past header
+        doc.image(Buffer.from(imgData, 'base64'), 40, 40, { width: 520 });
+        separatorY = 160; // Push content down past header image
       } catch (e) {
         console.error('Error adding header image', e);
       }
@@ -64,12 +65,12 @@ export class PdfService {
     // Gray line
     doc.strokeColor('#f1f5f9') // slate-100
       .lineWidth(1)
-      .moveTo(50, 125)
-      .lineTo(550, 125)
+      .moveTo(50, separatorY)
+      .lineTo(550, separatorY)
       .stroke();
 
     // Info Grid
-    const infoY = 145;
+    const infoY = separatorY + 20;
     doc.fontSize(8).fillColor('#94a3b8').text('TO CUSTOMER', 50, infoY);
     doc.fontSize(8).fillColor('#94a3b8').text('FROM COMPANY', 320, infoY);
 
@@ -94,7 +95,7 @@ export class PdfService {
       .text(company.phone || '', 320, infoY + 62);
 
     // Table Header
-    const tableHeaderY = 280;
+    const tableHeaderY = infoY + 130;
     doc.fontSize(8).fillColor('#94a3b8').font('Helvetica-Bold')
       .text('DESCRIPTION', 50, tableHeaderY)
       .text('QTY', 300, tableHeaderY, { width: 40, align: 'center' })
@@ -106,6 +107,18 @@ export class PdfService {
       .moveTo(50, tableHeaderY + 15)
       .lineTo(550, tableHeaderY + 15)
       .stroke();
+
+    const currency = data.currency || company.currency || 'USD';
+    const formatCurrency = (amount: number) => {
+      const symbols: { [key: string]: string } = {
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'LKR': 'Rs.'
+      };
+      const symbol = symbols[currency] || '$';
+      return `${symbol}${Number(amount).toFixed(2)}`;
+    };
 
     // Table Rows
     let currentY = tableHeaderY + 30;
@@ -122,9 +135,9 @@ export class PdfService {
         .text(item.description || 'No description', 50, currentY, { width: 240 })
         .font('Helvetica')
         .text(qty.toString(), 300, currentY, { width: 40, align: 'center' })
-        .text(`$${price.toFixed(2)}`, 350, currentY, { width: 80, align: 'right' })
+        .text(formatCurrency(price), 350, currentY, { width: 80, align: 'right' })
         .font('Helvetica-Bold')
-        .text(`$${amount.toFixed(2)}`, 450, currentY, { width: 100, align: 'right' });
+        .text(formatCurrency(amount), 450, currentY, { width: 100, align: 'right' });
 
       currentY += 30;
       doc.strokeColor('#f1f5f9')
@@ -150,12 +163,12 @@ export class PdfService {
       .text(`TAX (${taxRate}%)`, 350, summaryY + 20, { width: 80, align: 'right' });
 
     doc.fillColor('#0f172a').font('Helvetica-Bold')
-      .text(`$${Number(subtotal).toFixed(2)}`, 450, summaryY, { width: 100, align: 'right' })
-      .text(`$${Number(taxAmount).toFixed(2)}`, 450, summaryY + 20, { width: 100, align: 'right' });
+      .text(formatCurrency(subtotal), 450, summaryY, { width: 100, align: 'right' })
+      .text(formatCurrency(taxAmount), 450, summaryY + 20, { width: 100, align: 'right' });
 
     doc.fontSize(18).fillColor('#0f172a')
       .text('TOTAL', 350, summaryY + 45, { width: 80, align: 'right' })
-      .text(`$${Number(finalTotal).toFixed(2)}`, 440, summaryY + 45, { width: 110, align: 'right' });
+      .text(formatCurrency(finalTotal), 440, summaryY + 45, { width: 110, align: 'right' });
 
     // Footer
     doc.fontSize(8).fillColor('#94a3b8').font('Helvetica-Oblique')

@@ -21,6 +21,15 @@ export class ProjectsService {
             .lean();
     }
 
+    async findByCustomer(customerId: string) {
+        return this.projectModel
+            .find({ customer: customerId })
+            .populate('customer')
+            .populate('quotation')
+            .sort({ createdAt: -1 })
+            .lean();
+    }
+
     async findById(id: string) {
         return this.projectModel
             .findById(id)

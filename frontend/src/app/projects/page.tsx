@@ -199,7 +199,7 @@ export default function ProjectsPage() {
                                 ))}
                             </select>
                         </div>
-                        <div className="space-y-1">
+                        {/* <div className="space-y-1">
                             <label className="text-sm font-medium">Quotation</label>
                             <select {...register('quotation')} required className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" disabled={!selectedCustomerId}>
                                 <option value="">Select Quotation</option>
@@ -207,7 +207,7 @@ export default function ProjectsPage() {
                                     <option key={q._id} value={q._id}>QT-{q._id?.slice(-6).toUpperCase()} - {formatCurrency(q.total)}</option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

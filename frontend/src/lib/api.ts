@@ -69,6 +69,7 @@ export const servicesAPI = {
 export const projectsAPI = {
     create: (data: any) => api.post('/projects', data),
     list: () => api.get('/projects'),
+    listByCustomer: (customerId: string) => api.get(`/projects/customer/${customerId}`),
     getById: (id: string) => api.get(`/projects/${id}`),
     update: (id: string, data: any) => api.put(`/projects/${id}`, data),
     delete: (id: string) => api.delete(`/projects/${id}`),

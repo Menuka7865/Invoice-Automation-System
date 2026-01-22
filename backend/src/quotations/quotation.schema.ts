@@ -8,6 +8,9 @@ export class Quotation extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Customer', required: true })
   customer: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Project' })
+  project: Types.ObjectId;
+
   @Prop({ default: 'Draft' })
   status: string;
 

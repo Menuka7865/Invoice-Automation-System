@@ -20,6 +20,18 @@ export function useProjects() {
         }
     };
 
+    const fetchProjectsByCustomer = async (customerId: string) => {
+        setLoading(true);
+        try {
+            const { data } = await projectsAPI.listByCustomer(customerId);
+            setProjects(data);
+        } catch (error) {
+            toast.error('Failed to load customer projects');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const createProject = async (projectData: any) => {
         try {
             const { data } = await projectsAPI.create(projectData);
@@ -58,5 +70,5 @@ export function useProjects() {
         fetchProjects();
     }, []);
 
-    return { projects, loading, fetchProjects, createProject, updateProject, deleteProject };
+    return { projects, loading, fetchProjects, fetchProjectsByCustomer, createProject, updateProject, deleteProject };
 }
