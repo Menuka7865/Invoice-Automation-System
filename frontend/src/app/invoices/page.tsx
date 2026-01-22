@@ -7,14 +7,33 @@ import { useState } from 'react';
 
 
 
+
 import CreateInvoiceModal from '@/components/CreateInvoiceModal';
+import DownloadOptionsModal from '@/components/invoices/DownloadOptionsModal';
+import SendEmailModal from '@/components/invoices/SendEmailModal';
 
 export default function InvoicesPage() {
     const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Modal States
+    const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+    const [sendModalOpen, setSendModalOpen] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+
     const { invoices, loading, fetchInvoices, deleteInvoice, updateInvoice, downloadPdf, sendInvoice } = useInvoices();
     const { profile: companyProfile } = useCompanyProfile();
+
+    const handleDownloadClick = (inv: any) => {
+        setSelectedInvoice(inv);
+        setDownloadModalOpen(true);
+    };
+
+    const handleSendClick = (inv: any) => {
+        setSelectedInvoice(inv);
+        setSendModalOpen(true);
+    };
 
     const filteredInvoices = invoices.filter((inv: any) => {
         const matchesSearch =
@@ -180,14 +199,14 @@ export default function InvoicesPage() {
                                         <td className="px-8 py-5">
                                             <div className="flex justify-center gap-2">
                                                 <button
-                                                    onClick={() => downloadPdf(inv._id)}
+                                                    onClick={() => handleDownloadClick(inv)}
                                                     className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                                                     title="Download PDF"
                                                 >
                                                     <Download size={16} />
                                                 </button>
                                                 <button
-                                                    onClick={() => sendInvoice(inv._id)}
+                                                    onClick={() => handleSendClick(inv)}
                                                     className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                                                     title="Send to Customer"
                                                 >
@@ -209,6 +228,21 @@ export default function InvoicesPage() {
                     </table>
                 </div>
             </div>
+
+            <DownloadOptionsModal
+                isOpen={downloadModalOpen}
+                onClose={() => setDownloadModalOpen(false)}
+                onDownload={(options) => downloadPdf(selectedInvoice?._id, options)}
+            />
+
+            <SendEmailModal
+                isOpen={sendModalOpen}
+                onClose={() => setSendModalOpen(false)}
+                onSend={(recipients: string[], options: any) => {
+                    sendInvoice(selectedInvoice?._id, recipients, options);
+                }}
+                customer={selectedInvoice?.customer}
+            />
         </div>
     );
 }

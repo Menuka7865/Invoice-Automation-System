@@ -39,19 +39,27 @@ export class InvoicesService {
     return { success: true, message: 'Invoice deleted successfully', doc: deleted };
   }
 
-  async generatePdf(id: string) {
+  async generatePdf(id: string, options: any = {}) {
     const invoice = await this.findById(id);
     if (!invoice) throw new NotFoundException('Invoice not found');
-    return this.pdfService.generateInvoicePdf(invoice);
+    const customer = (invoice.customer as any)?.name || 'Customer';
+    return this.pdfService.generateInvoicePdf({ ...invoice, customer, options });
   }
 
-  async sendEmail(id: string) {
+  async sendEmail(id: string, recipients: string[] = [], options: any = {}) {
     const invoice = await this.findById(id);
     if (!invoice) throw new NotFoundException('Invoice not found');
     const customer = invoice.customer as any;
-    if (!customer?.email) throw new Error('Customer email not found');
 
-    const pdf = await this.generatePdf(id);
+    // Determine recipients
+    const rawRecipients = recipients.length > 0 ? recipients : [customer?.email];
+    // Remove duplicates and filter falsy values
+    const toAddresses = [...new Set(rawRecipients)].filter(Boolean);
+
+    if (toAddresses.length === 0) throw new Error('No recipients found');
+
+    const pdf = await this.generatePdf(id); // Use default options for email attachment
+
     const company = await this.pdfService['companyService'].getProfile();
     const currency = (invoice as any).currency || company.currency || 'USD';
     const symbols: { [key: string]: string } = {
@@ -77,7 +85,7 @@ export class InvoicesService {
     `;
 
     await this.emailService.sendHtmlMailWithAttachment(
-      customer.email,
+      toAddresses.join(','),
       `Invoice from Invoice System`,
       html,
       `invoice-${id}.pdf`,

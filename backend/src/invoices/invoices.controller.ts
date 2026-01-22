@@ -30,10 +30,10 @@ export class InvoicesController {
     return this.svc.remove(id);
   }
 
-  @Get(':id/pdf')
-  async getPdf(@Param('id') id: string, @Res() res: any) {
+  @Post(':id/download')
+  async downloadPdf(@Param('id') id: string, @Body() body: any, @Res() res: any) {
     try {
-      const pdf = await this.svc.generatePdf(id);
+      const pdf = await this.svc.generatePdf(id, body);
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename=invoice-${id}.pdf`);
       res.setHeader('Content-Length', pdf.length);
@@ -44,8 +44,13 @@ export class InvoicesController {
     }
   }
 
+  @Get(':id/pdf')
+  async getPdf(@Param('id') id: string, @Res() res: any) {
+    return this.downloadPdf(id, {}, res);
+  }
+
   @Post(':id/send')
-  sendEmail(@Param('id') id: string) {
-    return this.svc.sendEmail(id);
+  sendEmail(@Param('id') id: string, @Body() body: { recipients?: string[], options?: any }) {
+    return this.svc.sendEmail(id, body?.recipients || [], body?.options || {});
   }
 }

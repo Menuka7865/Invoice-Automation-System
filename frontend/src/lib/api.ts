@@ -36,8 +36,13 @@ export const invoicesAPI = {
     getById: (id: string) => api.get(`/invoices/${id}`),
     update: (id: string, data: any) => api.put(`/invoices/${id}`, data),
     delete: (id: string) => api.delete(`/invoices/${id}`),
-    downloadPdf: (id: string) => api.get(`/invoices/${id}/pdf`, { responseType: 'blob' }),
-    sendEmail: (id: string) => api.post(`/invoices/${id}/send`),
+    downloadPdf: (id: string, options?: any) => {
+        if (options && Object.keys(options).length > 0) {
+            return api.post(`/invoices/${id}/download`, options, { responseType: 'blob' });
+        }
+        return api.get(`/invoices/${id}/pdf`, { responseType: 'blob' });
+    },
+    sendEmail: (id: string, recipients?: string[], options?: any) => api.post(`/invoices/${id}/send`, { recipients, options }),
 };
 
 // Quotations API

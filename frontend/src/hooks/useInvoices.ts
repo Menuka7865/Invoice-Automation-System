@@ -75,9 +75,9 @@ export function useInvoices() {
         }
     };
 
-    const downloadPdf = async (_id: string) => {
+    const downloadPdf = async (_id: string, options?: any) => {
         try {
-            const { data } = await invoicesAPI.downloadPdf(_id);
+            const { data } = await invoicesAPI.downloadPdf(_id, options);
             const url = window.URL.createObjectURL(new Blob([data]));
             const link = document.createElement('a');
             link.href = url;
@@ -90,10 +90,10 @@ export function useInvoices() {
         }
     };
 
-    const sendInvoice = async (id: string) => {
+    const sendInvoice = async (id: string, recipients?: string[], options?: any) => {
         try {
-            await invoicesAPI.sendEmail(id);
-            toast.success('Invoice sent to customer email');
+            await invoicesAPI.sendEmail(id, recipients, options);
+            toast.success('Invoice sent to recipients');
             fetchInvoices();
         } catch (error: any) {
             toast.error('Failed to send invoice email');
