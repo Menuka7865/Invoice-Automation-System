@@ -52,13 +52,22 @@ export class InvoicesService {
     if (!customer?.email) throw new Error('Customer email not found');
 
     const pdf = await this.generatePdf(id);
+    const company = await this.pdfService['companyService'].getProfile();
+    const currency = (invoice as any).currency || company.currency || 'USD';
+    const symbols: { [key: string]: string } = {
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£',
+      'LKR': 'Rs.'
+    };
+    const symbol = symbols[currency] || '$';
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
         <h2 style="color: #1e293b;">Invoice Received</h2>
         <p style="color: #475569;">Hello ${customer.name || 'valued customer'},</p>
         <p style="color: #475569;">Please find attached your invoice (INV-${id.slice(-6).toUpperCase()}). You can review the details in the attached PDF.</p>
-        <p style="color: #475569;">Total Amount: <strong>$${invoice.total.toFixed(2)}</strong></p>
+        <p style="color: #475569;">Total Amount: <strong>${symbol}${invoice.total.toFixed(2)}</strong></p>
         <p style="color: #475569;">Due Date: <strong>${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'N/A'}</strong></p>
         
         <p style="color: #94a3b8; font-size: 12px; margin-top: 40px; border-top: 1px solid #e2e8f0; pt: 20px;">

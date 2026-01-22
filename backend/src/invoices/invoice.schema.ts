@@ -18,6 +18,9 @@ export class Invoice extends Document {
   @Prop({ default: 0 })
   total: number;
 
+  @Prop({ default: 'USD' })
+  currency: string;
+
   @Prop()
   dueDate: Date;
 

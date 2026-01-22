@@ -4,6 +4,7 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import { useQuotations } from '@/hooks/useInvoices';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import DownloadOptionsModal from '@/components/quotations/DownloadOptionsModal';
 import SendEmailModal from '@/components/quotations/SendEmailModal';
 
@@ -11,6 +12,7 @@ export default function QuotationsPage() {
     const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const { quotations, loading, acceptQuotation, deleteQuotation, updateQuotation, downloadPdf, sendQuotation } = useQuotations();
+    const { profile: companyProfile } = useCompanyProfile();
 
     // Modal States
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
@@ -150,7 +152,7 @@ export default function QuotationsPage() {
                                         {typeof quote.customer === 'object' ? (quote.customer?.name || 'N/A') : (quote.customer || 'N/A')}
                                     </td>
                                     <td className="px-8 py-5 text-sm text-muted-foreground">{formatDate(quote.createdAt)}</td>
-                                    <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total, quote.currency)}</td>
+                                    <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total, quote.currency || companyProfile?.currency)}</td>
                                     <td className="px-8 py-5">
                                         <div className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(quote.status)}`}>
                                             {getStatusIcon(quote.status)}
@@ -223,7 +225,9 @@ export default function QuotationsPage() {
             <SendEmailModal
                 isOpen={sendModalOpen}
                 onClose={() => setSendModalOpen(false)}
-                onSend={(recipients) => sendQuotation(selectedQuotation?._id, recipients)}
+                onSend={(recipients: string[], options: any) => {
+                    sendQuotation(selectedQuotation?._id, recipients, options);
+                }}
                 customer={selectedQuotation?.customer}
             />
         </div>

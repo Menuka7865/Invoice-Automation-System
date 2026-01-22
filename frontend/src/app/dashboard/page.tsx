@@ -12,12 +12,14 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useCustomers } from '@/hooks/useCustomers';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { aiAPI } from '@/lib/api';
 import Link from 'next/link';
 
 export default function DashboardPage() {
     const { invoices, fetchInvoices } = useInvoices();
     const { customers } = useCustomers();
+    const { profile: companyProfile } = useCompanyProfile();
     const [aiInsights, setAiInsights] = useState<any>(null);
     const [loadingInsights, setLoadingInsights] = useState(true);
     const [generatingReport, setGeneratingReport] = useState(false);
@@ -199,7 +201,7 @@ export default function DashboardPage() {
                             <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
                             <h3 className="text-2xl font-bold mt-1">
                                 {stat.label.includes('Revenue') || stat.label.includes('Amount')
-                                    ? formatCurrency(stat.value)
+                                    ? formatCurrency(stat.value, companyProfile?.currency)
                                     : stat.value}
                             </h3>
                         </div>
@@ -273,7 +275,7 @@ export default function DashboardPage() {
                                         {typeof inv.customer === 'object' ? (inv.customer?.name || 'Unknown') : (inv.customer || 'Unknown')}
                                     </td>
                                     <td className="py-4 text-sm text-muted-foreground">{new Date(inv.createdAt).toLocaleDateString()}</td>
-                                    <td className="py-4 text-sm font-bold">{formatCurrency(inv.total)}</td>
+                                    <td className="py-4 text-sm font-bold">{formatCurrency(inv.total, inv.currency || companyProfile?.currency)}</td>
                                     <td className="py-4">
                                         <span className={`text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full ${inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-500' :
                                             inv.status === 'Overdue' ? 'bg-destructive/10 text-destructive' :

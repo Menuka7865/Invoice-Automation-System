@@ -4,12 +4,13 @@ import { Send, X, Users, Mail, Check } from 'lucide-react';
 interface SendEmailModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSend: (recipients: string[]) => void;
+    onSend: (recipients: string[], options: { includeButtons: boolean }) => void;
     customer: any; // Customer object
 }
 
 export default function SendEmailModal({ isOpen, onClose, onSend, customer }: SendEmailModalProps) {
     const [selectedEmails, setSelectedEmails] = useState<string[]>([]);
+    const [includeButtons, setIncludeButtons] = useState(true);
 
     // Reset selection when modal opens
     useEffect(() => {
@@ -18,6 +19,7 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
             if (customer.email) emails.push(customer.email);
             // Auto-select primary email
             setSelectedEmails(emails);
+            setIncludeButtons(true);
         }
     }, [isOpen, customer]);
 
@@ -45,7 +47,7 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
 
     const handleSend = () => {
         if (selectedEmails.length > 0) {
-            onSend(selectedEmails);
+            onSend(selectedEmails, { includeButtons });
             onClose();
         }
     };
@@ -64,7 +66,7 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
 
                 <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                        <p className="text-sm text-muted-foreground">Select recipients:</p>
+                        <p className="text-sm font-bold">Recipients</p>
                         <label className="flex items-center gap-2 text-sm font-medium cursor-pointer hover:text-primary transition-colors">
                             <input
                                 type="checkbox"
@@ -76,23 +78,23 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
                         </label>
                     </div>
 
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
                         {/* Main Company Email */}
                         {mainEmail && (
                             <div
                                 onClick={() => toggleEmail(mainEmail)}
-                                className={`p-4 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${selectedEmails.includes(mainEmail) ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+                                className={`p-3 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${selectedEmails.includes(mainEmail) ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                                         <BuildingIcon />
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-sm">Main Contact</p>
-                                        <p className="text-xs text-muted-foreground">{mainEmail}</p>
+                                    <div className="overflow-hidden">
+                                        <p className="font-bold text-xs truncate">Main Contact</p>
+                                        <p className="text-[10px] text-muted-foreground truncate">{mainEmail}</p>
                                     </div>
                                 </div>
-                                {selectedEmails.includes(mainEmail) && <Check className="text-primary" size={20} />}
+                                {selectedEmails.includes(mainEmail) && <Check className="text-primary" size={16} />}
                             </div>
                         )}
 
@@ -101,27 +103,43 @@ export default function SendEmailModal({ isOpen, onClose, onSend, customer }: Se
                             <div
                                 key={idx}
                                 onClick={() => toggleEmail(contact.email)}
-                                className={`p-4 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${selectedEmails.includes(contact.email) ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
+                                className={`p-3 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${selectedEmails.includes(contact.email) ? 'border-primary bg-primary/5' : 'border-muted hover:border-primary/50'}`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                                        <Users size={18} />
+                                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                        <Users size={16} />
                                     </div>
-                                    <div>
-                                        <p className="font-bold text-sm">{contact.name}</p>
-                                        <p className="text-xs text-muted-foreground">{contact.email}</p>
-                                        <p className="text-[10px] text-muted-foreground uppercase">{contact.designation}</p>
+                                    <div className="overflow-hidden">
+                                        <p className="font-bold text-xs truncate">{contact.name}</p>
+                                        <p className="text-[10px] text-muted-foreground truncate">{contact.email}</p>
                                     </div>
                                 </div>
-                                {selectedEmails.includes(contact.email) && <Check className="text-primary" size={20} />}
+                                {selectedEmails.includes(contact.email) && <Check className="text-primary" size={16} />}
                             </div>
                         ))}
 
                         {(!mainEmail && contacts.length === 0) && (
-                            <div className="p-8 text-center text-muted-foreground">
-                                No email contacts found for this customer.
+                            <div className="p-8 text-center text-muted-foreground text-sm">
+                                No email contacts found.
                             </div>
                         )}
+                    </div>
+
+                    {/* Options Section */}
+                    <div className="pt-4 border-t space-y-3">
+                        <p className="text-sm font-bold">Email Options</p>
+                        <label className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={includeButtons}
+                                onChange={(e) => setIncludeButtons(e.target.checked)}
+                                className="w-5 h-5 rounded-md border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <div>
+                                <p className="text-sm font-bold">Include Approval Buttons</p>
+                                <p className="text-[10px] text-muted-foreground">Add "Accept" and "Decline" buttons to the email.</p>
+                            </div>
+                        </label>
                     </div>
                 </div>
 

@@ -2,6 +2,7 @@
 import { Search, Receipt, Download, RefreshCw, Filter, CreditCard, Clock, CheckCircle, AlertCircle, Loader2, Send, Trash2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { useInvoices } from '@/hooks/useInvoices';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { useState } from 'react';
 
 
@@ -13,6 +14,7 @@ export default function InvoicesPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { invoices, loading, fetchInvoices, deleteInvoice, updateInvoice, downloadPdf, sendInvoice } = useInvoices();
+    const { profile: companyProfile } = useCompanyProfile();
 
     const filteredInvoices = invoices.filter((inv: any) => {
         const matchesSearch =
@@ -70,15 +72,15 @@ export default function InvoicesPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20">
                     <p className="text-emerald-700 text-sm font-bold uppercase tracking-wider mb-1">Total Paid</p>
-                    <h3 className="text-2xl font-black text-emerald-500">{formatCurrency(paidTotal)}</h3>
+                    <h3 className="text-2xl font-black text-emerald-500">{formatCurrency(paidTotal, companyProfile?.currency)}</h3>
                 </div>
                 <div className="bg-amber-500/10 p-6 rounded-3xl border border-amber-500/20">
                     <p className="text-amber-700 text-sm font-bold uppercase tracking-wider mb-1">Pending Amount</p>
-                    <h3 className="text-2xl font-black text-amber-500">{formatCurrency(pendingTotal)}</h3>
+                    <h3 className="text-2xl font-black text-amber-500">{formatCurrency(pendingTotal, companyProfile?.currency)}</h3>
                 </div>
                 <div className="bg-destructive/10 p-6 rounded-3xl border border-destructive/20">
                     <p className="text-destructive/70 text-sm font-bold uppercase tracking-wider mb-1">Overdue Total</p>
-                    <h3 className="text-2xl font-black text-destructive">{formatCurrency(overdueTotal)}</h3>
+                    <h3 className="text-2xl font-black text-destructive">{formatCurrency(overdueTotal, companyProfile?.currency)}</h3>
                 </div>
             </div>
 
@@ -159,7 +161,7 @@ export default function InvoicesPage() {
                                                 <span className="text-[10px] text-muted-foreground">Created: {formatDate(inv.createdAt)}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(inv.total)}</td>
+                                        <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(inv.total, inv.currency || companyProfile?.currency)}</td>
                                         <td className="px-8 py-5">
                                             <div className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${color}`}>
                                                 {icon}

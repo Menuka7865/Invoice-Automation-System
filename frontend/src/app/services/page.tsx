@@ -6,6 +6,7 @@ import { Plus, Search, Edit2, Trash2, Package, Tag, Layers, Loader2 } from 'luci
 import Modal from '@/components/ui/Modal';
 import { formatCurrency } from '@/lib/utils';
 import { useServices } from '@/hooks/useServices';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { useForm } from 'react-hook-form';
 
 export default function ServicesPage() {
@@ -13,6 +14,7 @@ export default function ServicesPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingId, setEditingId] = useState<string | null>(null);
     const { services, loading, createService, updateService, deleteService } = useServices();
+    const { profile: companyProfile } = useCompanyProfile();
     const { register, handleSubmit, reset, setValue } = useForm();
 
     const filteredServices = services.filter((s: any) =>
@@ -129,7 +131,7 @@ export default function ServicesPage() {
                                     <span className="text-muted-foreground flex items-center gap-2">
                                         <Tag size={14} className="text-primary" /> Price
                                     </span>
-                                    <span className="font-bold text-lg">{formatCurrency(service.price)}</span>
+                                    <span className="font-bold text-lg">{formatCurrency(service.price, companyProfile?.currency)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-muted-foreground flex items-center gap-2">

@@ -24,6 +24,7 @@ interface QuotationPreviewProps {
         email: string;
         phone: string;
         logo?: string;
+        currency?: string;
     } | null;
     subtotal: number;
     tax: number;
@@ -31,7 +32,7 @@ interface QuotationPreviewProps {
 }
 
 export default function QuotationPreview({ data, company, subtotal, tax, total }: QuotationPreviewProps) {
-    const currency = data.currency || 'USD';
+    const currency = data.currency || company?.currency || 'USD';
     const logoToUse = data.logo || company?.logo;
 
     return (

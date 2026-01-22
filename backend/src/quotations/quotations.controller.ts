@@ -19,8 +19,8 @@ export class QuotationsController {
   }
 
   @Post(':id/send')
-  sendEmail(@Param('id') id: string, @Body() body: { recipients?: string[] }) {
-    return this.svc.sendEmail(id, body?.recipients || []);
+  sendEmail(@Param('id') id: string, @Body() body: { recipients?: string[], options?: any }) {
+    return this.svc.sendEmail(id, body?.recipients || [], body?.options || {});
   }
 
   // Changed to POST to accept extensive options if needed, or stick to GET with Query if simple. 

@@ -53,7 +53,7 @@ export const quotationsAPI = {
         }
         return api.get(`/quotations/${id}/pdf`, { responseType: 'blob' });
     },
-    sendEmail: (id: string, recipients?: string[]) => api.post(`/quotations/${id}/send`, { recipients }),
+    sendEmail: (id: string, recipients?: string[], options?: any) => api.post(`/quotations/${id}/send`, { recipients, options }),
 };
 
 // Services API

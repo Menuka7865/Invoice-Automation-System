@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, Building2, Mail, Phone, Globe, MapPin, DollarSign, Percent, FileText } from 'lucide-react';
+import { Save, Building2, Mail, Phone, Globe, MapPin, DollarSign, Percent, FileText, Trash2 } from 'lucide-react';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { div } from 'framer-motion/client';
 
@@ -94,6 +94,15 @@ export default function SettingsPage() {
                                 <span className="text-xs text-white font-medium">Change</span>
                             </div>
                         </div>
+                        {watch('logo') && (
+                            <button
+                                type="button"
+                                onClick={() => setValue('logo', null)}
+                                className="flex items-center gap-1 text-xs text-destructive hover:underline"
+                            >
+                                <Trash2 size={12} /> Remove Logo
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -222,6 +231,15 @@ export default function SettingsPage() {
                                 </div>
                             )}
                         </div>
+                        {pdfHeaderImage && (
+                            <button
+                                type="button"
+                                onClick={() => setValue('pdfHeaderImage', null)}
+                                className="flex items-center gap-1 text-xs text-destructive hover:underline"
+                            >
+                                <Trash2 size={12} /> Remove Header Image
+                            </button>
+                        )}
                         <p className="text-xs text-muted-foreground">Upload an image to appear in the header of your PDF documents.</p>
                     </div>
                 </div>

@@ -180,9 +180,9 @@ export function useQuotations() {
         }
     };
 
-    const sendQuotation = async (id: string, recipients?: string[]) => {
+    const sendQuotation = async (id: string, recipients?: string[], options?: any) => {
         try {
-            await quotationsAPI.sendEmail(id, recipients);
+            await quotationsAPI.sendEmail(id, recipients, options);
             toast.success('Quotation sent to recipients');
             fetchQuotations(); // Refresh to see status change if any
         } catch (error: any) {

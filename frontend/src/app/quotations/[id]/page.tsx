@@ -11,6 +11,7 @@ import QuotationPreview from '@/components/quotations/QuotationPreview';
 import VersionHistory, { VersionEntry } from '@/components/quotations/VersionHistory';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useQuotations } from '@/hooks/useInvoices';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { quotationsAPI } from '@/lib/api';
 
 export default function EditQuotationPage() {
@@ -20,6 +21,7 @@ export default function EditQuotationPage() {
 
     const { customers, fetchCustomers } = useCustomers();
     const { updateQuotation } = useQuotations();
+    const { profile: companyProfile } = useCompanyProfile();
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -32,7 +34,7 @@ export default function EditQuotationPage() {
             date: new Date().toISOString().split('T')[0],
             items: [{ description: '', quantity: 1, price: 0 }],
             taxRate: 10,
-            currency: 'USD',
+            currency: companyProfile?.currency || 'USD',
             logo: null,
             version: '1.0',
             status: 'Draft'
@@ -357,8 +359,10 @@ export default function EditQuotationPage() {
                         ...formData,
                         customerId: formData.customer,
                         customer: customers.find(c => c._id === formData.customer),
-                        logo: logoPreview
+                        logo: logoPreview,
+                        currency: formData.currency || companyProfile?.currency
                     }}
+                    company={companyProfile}
                     subtotal={subtotal}
                     tax={tax}
                     total={total}

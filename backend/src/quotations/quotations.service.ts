@@ -59,7 +59,7 @@ export class QuotationsService {
     return this.pdfSvc.generateQuotationPdf({ ...quotation, customer, options });
   }
 
-  async sendEmail(id: string, recipients: string[] = []) {
+  async sendEmail(id: string, recipients: string[] = [], options: any = {}) {
     const quotation = await this.findById(id);
     if (!quotation) throw new Error('Quotation not found');
     const customer = quotation.customer as any;
@@ -76,17 +76,23 @@ export class QuotationsService {
     const acceptUrl = `${baseUrl}/quotations/${id}/accept`;
     const declineUrl = `${baseUrl}/quotations/${id}/decline`;
 
+    const includeButtons = options.includeButtons !== false; // Default to true if not specified
+
+    const buttonsHtml = includeButtons ? `
+        <p style="color: #475569;">Would you like to accept this proposal?</p>
+        <div style="margin: 30px 0; display: flex; gap: 15px;">
+          <a href="${acceptUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Accept Quotation</a>
+          <a href="${declineUrl}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-left: 10px;">Decline Quotation</a>
+        </div>
+    ` : '';
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
         <h2 style="color: #1e293b;">New Quotation Received</h2>
         <p style="color: #475569;">Hello ${customer.name || 'valued customer'},</p>
         <p style="color: #475569;">Please find attached your professional quotation. You can review the details in the attached PDF.</p>
-        <p style="color: #475569;">Would you like to accept this proposal?</p>
         
-        <div style="margin: 30px 0; display: flex; gap: 15px;">
-          <a href="${acceptUrl}" style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Accept Quotation</a>
-          <a href="${declineUrl}" style="background-color: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-left: 10px;">Decline Quotation</a>
-        </div>
+        ${buttonsHtml}
         
         <p style="color: #94a3b8; font-size: 12px; margin-top: 40px; border-top: 1px solid #e2e8f0; pt: 20px;">
           This is an automated message from our Invoice Automation System.

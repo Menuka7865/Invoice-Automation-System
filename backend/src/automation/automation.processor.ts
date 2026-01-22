@@ -11,13 +11,13 @@ import { PdfService } from '../pdf/pdf.service';
 @Injectable()
 export class AutomationProcessor {
   private readonly logger = new Logger('AutomationProcessor');
-  constructor(private invoices: InvoicesService, private customers: CustomersService, private email: EmailService, private pdf: PdfService, @InjectQueue('emails') private queue: Queue) {}
+  constructor(private invoices: InvoicesService, private customers: CustomersService, private email: EmailService, private pdf: PdfService, @InjectQueue('emails') private queue: Queue) { }
 
   @OnEvent('quotation.accepted')
   async onQuotationAccepted(payload: any) {
     this.logger.log('Quotation accepted - creating invoice and queueing email');
     // create invoice from quotation (simple transform)
-    const invoice = await this.invoices.create({ customer: payload.customer, quotation: payload._id, items: payload.items, total: payload.total, dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000) });
+    const invoice = await this.invoices.create({ customer: payload.customer, quotation: payload._id, items: payload.items, total: payload.total, currency: payload.currency || 'USD', dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000) });
     const invDoc: any = invoice?.doc ?? invoice;
     const customer = await this.customers.findById(payload.customer.toString());
     if (!customer) {

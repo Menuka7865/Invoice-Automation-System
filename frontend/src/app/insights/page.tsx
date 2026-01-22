@@ -10,6 +10,7 @@ import {
     Lightbulb, ArrowRight, BrainCircuit, Wallet
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { motion } from 'framer-motion';
 import { aiAPI } from '@/lib/api';
 
@@ -24,6 +25,7 @@ const forecastData = [
 export default function InsightsPage() {
     const [aiInsights, setAiInsights] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const { profile: companyProfile } = useCompanyProfile();
 
     const fetchAnalysis = async () => {
         setLoading(true);
@@ -90,6 +92,7 @@ export default function InsightsPage() {
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
                                 <Tooltip
+                                    formatter={(value: number | undefined) => formatCurrency(value || 0, companyProfile?.currency)}
                                     contentStyle={{ backgroundColor: '#fff', borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
                                 />
                                 <Area type="monotone" dataKey="predicted" stroke="#8b5cf6" strokeWidth={3} strokeDasharray="5 5" fill="url(#colorPred)" />

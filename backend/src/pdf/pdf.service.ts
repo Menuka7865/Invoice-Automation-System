@@ -180,6 +180,7 @@ export class PdfService {
   }
 
   async generateDashboardReport(stats: any) {
+    const company = await this.companyService.getProfile();
     const doc = new PDFDocument({ margin: 50 });
     const chunks: Buffer[] = [];
     doc.on('data', (d) => chunks.push(d));
@@ -197,15 +198,24 @@ export class PdfService {
     doc.moveDown();
     const statsY = 150;
 
+    const currency = company.currency || 'USD';
+    const symbols: { [key: string]: string } = {
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£',
+      'LKR': 'Rs.'
+    };
+    const symbol = symbols[currency] || '$';
+
     // Revenue Box
     doc.rect(50, statsY, 240, 60).fillAndStroke('#f8fafc', '#e2e8f0');
     doc.fillColor('#64748b').fontSize(10).text('TOTAL REVENUE', 60, statsY + 15);
-    doc.fillColor('#0f172a').fontSize(14).font('Helvetica-Bold').text(`$${stats.totalRevenue?.toLocaleString()}`, 60, statsY + 35);
+    doc.fillColor('#0f172a').fontSize(14).font('Helvetica-Bold').text(`${symbol}${stats.totalRevenue?.toLocaleString()}`, 60, statsY + 35);
 
     // Overdue Box
     doc.rect(300, statsY, 240, 60).fillAndStroke('#fef2f2', '#fecaca');
     doc.fillColor('#991b1b').fontSize(10).text('OVERDUE AMOUNT', 310, statsY + 15);
-    doc.fillColor('#b91c1c').fontSize(14).font('Helvetica-Bold').text(`$${stats.overdue?.toLocaleString()}`, 310, statsY + 35);
+    doc.fillColor('#b91c1c').fontSize(14).font('Helvetica-Bold').text(`${symbol}${stats.overdue?.toLocaleString()}`, 310, statsY + 35);
 
     doc.moveDown(5);
     doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(12).text(`Active Customers: ${stats.customers}`, 50, statsY + 80);
