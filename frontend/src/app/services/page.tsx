@@ -56,8 +56,8 @@ export default function ServicesPage() {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Services Management</h1>
-                    <p className="text-muted-foreground">Manage your company's service offerings.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Services Management</h1>
+                    <p className="text-muted-foreground text-sm">Manage your company's service offerings.</p>
                 </div>
                 <button
                     onClick={() => {
@@ -65,7 +65,7 @@ export default function ServicesPage() {
                         reset();
                         setIsModalOpen(true);
                     }}
-                    className="bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2"
+                    className="w-full sm:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <Plus size={20} /> Add Service
                 </button>
@@ -165,7 +165,7 @@ export default function ServicesPage() {
                         <label className="text-sm font-medium">Description</label>
                         <textarea {...register('description')} className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20 min-h-[100px]" placeholder="Service details..." />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Price</label>
                             <input {...register('price')} required type="number" step="0.01" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="0.00" />

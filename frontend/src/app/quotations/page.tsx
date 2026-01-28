@@ -65,14 +65,14 @@ export default function QuotationsPage() {
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Quotations</h1>
-                    <p className="text-muted-foreground">Estimate and propose projects to your customers.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Quotations</h1>
+                    <p className="text-muted-foreground text-sm">Estimate and propose projects to your customers.</p>
                 </div>
                 <Link
                     href="/quotations/new"
-                    className="bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2"
+                    className="w-full sm:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <Plus size={20} /> Create Quotation
                 </Link>
@@ -80,20 +80,22 @@ export default function QuotationsPage() {
 
             <div className="bg-card rounded-3xl border shadow-sm overflow-hidden">
                 {/* Tabs */}
-                <div className="flex items-center gap-6 px-8 border-b">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`py-6 text-sm font-semibold transition-all relative ${activeTab === tab ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                                }`}
-                        >
-                            {tab}
-                            {activeTab === tab && (
-                                <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-t-full shadow-[0_-4px_10px_rgba(139,92,246,0.3)]" />
-                            )}
-                        </button>
-                    ))}
+                <div className="overflow-x-auto scrollbar-hide border-b px-4 md:px-8">
+                    <div className="flex items-center gap-4 md:gap-6 whitespace-nowrap min-w-max">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={`py-4 md:py-6 text-sm font-semibold transition-all relative ${activeTab === tab ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                            >
+                                {tab}
+                                {activeTab === tab && (
+                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-primary rounded-t-full shadow-[0_-4px_10px_rgba(139,92,246,0.3)]" />
+                                )}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Filters */}
@@ -112,107 +114,109 @@ export default function QuotationsPage() {
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-muted/30">
-                            <tr className="text-muted-foreground text-[11px] uppercase tracking-wider">
-                                <th className="px-8 py-4 font-bold">Quote Number</th>
-                                <th className="px-8 py-4 font-bold">Company</th>
-                                <th className="px-8 py-4 font-bold">Created Date</th>
-                                <th className="px-8 py-4 font-bold">Total Amount</th>
-                                <th className="px-8 py-4 font-bold">Status</th>
-                                <th className="px-8 py-4 font-bold text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {loading ? (
-                                <tr>
-                                    <td colSpan={6} className="px-8 py-20 text-center">
-                                        <Loader2 className="animate-spin mx-auto mb-4 text-primary" size={32} />
-                                        <p className="text-muted-foreground font-bold">Loading quotations...</p>
-                                    </td>
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                    <div className="inline-block min-w-full align-middle md:px-0 px-4">
+                        <table className="w-full text-left">
+                            <thead className="bg-muted/30">
+                                <tr className="text-muted-foreground text-[11px] uppercase tracking-wider">
+                                    <th className="px-4 md:px-8 py-4 font-bold min-w-[150px]">Quote Number</th>
+                                    <th className="px-4 md:px-8 py-4 font-bold min-w-[150px]">Company</th>
+                                    <th className="px-4 md:px-8 py-4 font-bold min-w-[120px]">Created Date</th>
+                                    <th className="px-4 md:px-8 py-4 font-bold min-w-[120px]">Total Amount</th>
+                                    <th className="px-4 md:px-8 py-4 font-bold min-w-[120px]">Status</th>
+                                    <th className="px-4 md:px-8 py-4 font-bold text-center min-w-[200px]">Actions</th>
                                 </tr>
-                            ) : filteredQuotations.length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="px-8 py-20 text-center text-muted-foreground">
-                                        No quotations found. Create one to get started.
-                                    </td>
-                                </tr>
-                            ) : filteredQuotations.map((quote: any) => (
-                                <tr key={quote._id} className="hover:bg-muted/20 transition-colors group">
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-gray-500 transition-all">
-                                                <FileText size={18} />
+                            </thead>
+                            <tbody className="divide-y">
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-8 py-20 text-center">
+                                            <Loader2 className="animate-spin mx-auto mb-4 text-primary" size={32} />
+                                            <p className="text-muted-foreground font-bold">Loading quotations...</p>
+                                        </td>
+                                    </tr>
+                                ) : filteredQuotations.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="px-8 py-20 text-center text-muted-foreground">
+                                            No quotations found. Create one to get started.
+                                        </td>
+                                    </tr>
+                                ) : filteredQuotations.map((quote: any) => (
+                                    <tr key={quote._id} className="hover:bg-muted/20 transition-colors group">
+                                        <td className="px-4 md:px-8 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-gray-500 transition-all shrink-0">
+                                                    <FileText className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                                                </div>
+                                                <span className="font-bold text-sm">QT-{quote._id?.slice(-6).toUpperCase()}</span>
                                             </div>
-                                            <span className="font-bold text-sm">QT-{quote._id?.slice(-6).toUpperCase()}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5 text-sm font-medium">
-                                        {typeof quote.customer === 'object' ? (quote.customer?.name || 'N/A') : (quote.customer || 'N/A')}
-                                    </td>
-                                    <td className="px-8 py-5 text-sm text-muted-foreground">{formatDate(quote.createdAt)}</td>
-                                    <td className="px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total, quote.currency || companyProfile?.currency)}</td>
-                                    <td className="px-8 py-5">
-                                        <div className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(quote.status)}`}>
-                                            {getStatusIcon(quote.status)}
-                                            <select
-                                                value={quote.status}
-                                                onChange={(e) => handleStatusChange(quote._id, e.target.value)}
-                                                className="bg-transparent border-none outline-none font-bold cursor-pointer"
-                                            >
-                                                <option value="Draft">Draft</option>
-                                                <option value="Sent">Sent</option>
-                                                <option value="Accepted">Accepted</option>
-                                                <option value="Declined">Declined</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5">
-                                        <div className="flex justify-center gap-2">
-                                            {quote.status !== 'Accepted' && (
-                                                <button
-                                                    onClick={() => acceptQuotation(quote._id)}
-                                                    className="p-2 hover:bg-emerald-500/10 rounded-lg text-emerald-600 transition-colors"
-                                                    title="Accept & Generate Invoice"
+                                        </td>
+                                        <td className="px-4 md:px-8 py-5 text-sm font-medium">
+                                            {typeof quote.customer === 'object' ? (quote.customer?.name || 'N/A') : (quote.customer || 'N/A')}
+                                        </td>
+                                        <td className="px-4 md:px-8 py-5 text-sm text-muted-foreground">{formatDate(quote.createdAt)}</td>
+                                        <td className="px-4 md:px-8 py-5 text-sm font-extrabold">{formatCurrency(quote.total, quote.currency || companyProfile?.currency)}</td>
+                                        <td className="px-4 md:px-8 py-5">
+                                            <div className={`flex items-center gap-2 w-fit px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(quote.status)}`}>
+                                                {getStatusIcon(quote.status)}
+                                                <select
+                                                    value={quote.status}
+                                                    onChange={(e) => handleStatusChange(quote._id, e.target.value)}
+                                                    className="bg-transparent border-none outline-none font-bold cursor-pointer"
                                                 >
-                                                    <CheckCircle size={16} />
+                                                    <option value="Draft">Draft</option>
+                                                    <option value="Sent">Sent</option>
+                                                    <option value="Accepted">Accepted</option>
+                                                    <option value="Declined">Declined</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 md:px-8 py-5">
+                                            <div className="flex justify-center gap-1 md:gap-2">
+                                                {quote.status !== 'Accepted' && (
+                                                    <button
+                                                        onClick={() => acceptQuotation(quote._id)}
+                                                        className="p-2 hover:bg-emerald-500/10 rounded-lg text-emerald-600 transition-colors"
+                                                        title="Accept & Generate Invoice"
+                                                    >
+                                                        <CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                    </button>
+                                                )}
+                                                <Link
+                                                    href={`/quotations/${quote._id}`}
+                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
+                                                    title="Edit Quotation"
+                                                >
+                                                    <Edit2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDownloadClick(quote)}
+                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
+                                                    title="Download PDF"
+                                                >
+                                                    <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                                 </button>
-                                            )}
-                                            <Link
-                                                href={`/quotations/${quote._id}`}
-                                                className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
-                                                title="Edit Quotation"
-                                            >
-                                                <Edit2 size={16} />
-                                            </Link>
-                                            <button
-                                                onClick={() => handleDownloadClick(quote)}
-                                                className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
-                                                title="Download PDF"
-                                            >
-                                                <Download size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => handleSendClick(quote)}
-                                                className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
-                                                title="Send to Customer"
-                                            >
-                                                <Send size={16} />
-                                            </button>
-                                            <button
-                                                title='btn'
-                                                onClick={() => deleteQuotation(quote._id)}
-                                                className="p-2 hover:bg-destructive/10 rounded-lg text-destructive transition-colors"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                                <button
+                                                    onClick={() => handleSendClick(quote)}
+                                                    className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
+                                                    title="Send to Customer"
+                                                >
+                                                    <Send className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                </button>
+                                                <button
+                                                    title='btn'
+                                                    onClick={() => deleteQuotation(quote._id)}
+                                                    className="p-2 hover:bg-destructive/10 rounded-lg text-destructive transition-colors"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

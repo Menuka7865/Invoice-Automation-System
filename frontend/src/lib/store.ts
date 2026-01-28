@@ -36,6 +36,7 @@ export const useAuthStore = create<AuthState>()(
 interface UIState {
     sidebarOpen: boolean;
     toggleSidebar: () => void;
+    setSidebar: (open: boolean) => void;
     isDarkMode: boolean;
     toggleDarkMode: () => void;
 }
@@ -45,6 +46,7 @@ export const useUIStore = create<UIState>()(
         (set) => ({
             sidebarOpen: true,
             toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+            setSidebar: (open) => set({ sidebarOpen: open }),
             isDarkMode: false,
             toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
         }),

@@ -72,8 +72,8 @@ export default function CustomersPage() {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Manage Companies</h1>
-                    <p className="text-muted-foreground">Add, track, and manage your partner companies.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Manage Companies</h1>
+                    <p className="text-muted-foreground text-sm">Add, track, and manage your partner companies.</p>
                 </div>
                 <button
                     onClick={() => {
@@ -81,14 +81,14 @@ export default function CustomersPage() {
                         reset();
                         setIsModalOpen(true);
                     }}
-                    className="bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center gap-2"
+                    className="w-full sm:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <Plus size={20} /> Add Company
                 </button>
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-card p-4 rounded-2xl border shadow-sm flex flex-col sm:flex-row gap-4">
+            <div className="bg-card p-4 rounded-2xl border shadow-sm flex flex-col md:flex-row gap-4">
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-2.5 text-muted-foreground" size={18} />
                     <input
@@ -100,7 +100,7 @@ export default function CustomersPage() {
                     />
                 </div>
                 <div className="flex gap-2">
-                    <select className="bg-muted border-none rounded-xl py-2 px-4 outline-none text-sm" title='option' >
+                    <select className="flex-1 md:flex-none bg-muted border-none rounded-xl py-2 px-4 outline-none text-sm" title='option' >
                         <option>All Companies</option>
                         <option>Top Spending</option>
                         <option>Most Active</option>
@@ -144,7 +144,7 @@ export default function CustomersPage() {
                         </div>
 
                         <div>
-                                <h3 className="font-bold text-lg flex items-center gap-2"><Building2 size={14} />{customer.name}</h3>
+                            <h3 className="font-bold text-lg flex items-center gap-2"><Building2 size={14} />{customer.name}</h3>
                             <div className="space-y-2 border-t pt-4">
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                     <Mail size={14} className="text-primary" /> {customer.email}
@@ -208,15 +208,11 @@ export default function CustomersPage() {
                 title={editingId ? 'Edit Company' : 'Add New Company'}
             >
                 <form onSubmit={handleSubmit(editingId ? handleUpdate : handleCreate)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4 ">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Company Name</label>
                             <input {...register('name')} required type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. ABC company" />
                         </div>
-                        {/* <div className="space-y-1">
-                            <label className="text-sm font-medium">Customer Name</label>
-                            <input {...register('company')} type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="e.g. Acme Corp" />
-                        </div> */}
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Company Address</label>
                             <input {...register('address')} required type="text" className="w-full bg-muted border-none rounded-xl p-3 outline-none focus:ring-2 focus:ring-primary/20" placeholder="123 Main St, Anytown" />
@@ -256,7 +252,7 @@ export default function CustomersPage() {
                                         <Trash2 size={16} />
                                     </button>
 
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-muted-foreground">Name</label>
                                             <input {...register(`contacts.${index}.name` as const)} placeholder="Name" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
@@ -266,7 +262,7 @@ export default function CustomersPage() {
                                             <input {...register(`contacts.${index}.designation` as const)} placeholder="Role/Title" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <label className="text-xs font-medium text-muted-foreground">Email</label>
                                             <input {...register(`contacts.${index}.email` as const)} placeholder="Email" className="w-full bg-background border-none rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/20" />

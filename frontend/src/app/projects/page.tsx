@@ -72,8 +72,8 @@ export default function ProjectsPage() {
         <div className="space-y-8 p-4 md:p-0">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-                    <p className="text-muted-foreground">Manage and track your projects and their association with customers.</p>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Projects</h1>
+                    <p className="text-muted-foreground text-sm">Manage and track your projects and their association with customers.</p>
                 </div>
                 <button
                     onClick={() => {
@@ -81,7 +81,7 @@ export default function ProjectsPage() {
                         reset();
                         setIsModalOpen(true);
                     }}
-                    className="w-full sm:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all flex items-center justify-center gap-2 text-sm md:text-base"
                 >
                     <Plus size={20} /> Add Project
                 </button>

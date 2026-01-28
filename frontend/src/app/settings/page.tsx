@@ -52,11 +52,10 @@ export default function SettingsPage() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-12">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-                <p className="text-muted-foreground">Manage your company profile and default configuration.</p>
+            <div className="px-4 md:px-0">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
+                <p className="text-muted-foreground text-sm">Manage your company profile and default configuration.</p>
             </div>
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Company Profile Section */}
                 <div className="bg-card p-8 rounded-3xl border shadow-sm space-y-6">

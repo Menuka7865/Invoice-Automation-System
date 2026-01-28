@@ -122,7 +122,7 @@ export default function DashboardPage() {
 
     const dynamicStats = [
         { label: 'Total Revenue', value: totalRevenue, icon: TrendingUp, change: '+0%', isPositive: true },
-        { label: 'Active Customers', value: activeCustomers, icon: Users, change: '+0%', isPositive: true },
+        { label: 'Active Companies', value: activeCustomers, icon: Users, change: '+0%', isPositive: true },
         { label: 'Pending Invoices', value: pendingInvoices, icon: Receipt, change: '+0%', isPositive: true },
         { label: 'Overdue Amount', value: overdueAmount, icon: AlertCircle, change: '+0%', isPositive: false },
     ];
@@ -131,13 +131,13 @@ export default function DashboardPage() {
         <div className="space-y-8">
             {/* Welcome Header */}
             {/* Welcome Header & Controls */}
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard Overview</h1>
-                    <p className="text-muted-foreground">Welcome back! Here's what's happening with your business.</p>
+                    <p className="text-muted-foreground text-sm md:text-base">Welcome back! Here's what's happening with your business.</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full xl:w-auto">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
                     {/* Time Frame Selector */}
                     <div className="flex items-center gap-2 bg-card border px-3 py-2 rounded-xl shadow-sm">
                         <Calendar size={18} className="text-muted-foreground" />
@@ -156,19 +156,19 @@ export default function DashboardPage() {
                     </div>
 
                     {timeFrame === 'custom' && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <input
                                 type="date"
                                 value={customStartDate}
                                 onChange={(e) => setCustomStartDate(e.target.value)}
-                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary flex-1 sm:flex-none"
                             />
-                            <span className="text-muted-foreground">-</span>
+                            <span className="text-muted-foreground hidden sm:inline">-</span>
                             <input
                                 type="date"
                                 value={customEndDate}
                                 onChange={(e) => setCustomEndDate(e.target.value)}
-                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary"
+                                className="bg-card border px-3 py-2 rounded-xl text-sm shadow-sm outline-none focus:ring-1 focus:ring-primary flex-1 sm:flex-none"
                             />
                         </div>
                     )}
@@ -176,7 +176,7 @@ export default function DashboardPage() {
                     <button
                         onClick={handleGenerateReport}
                         disabled={generatingReport}
-                        className="whitespace-nowrap bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="whitespace-nowrap bg-primary text-black px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                     >
                         {generatingReport ? 'Generating...' : 'Generate Report'}
                     </button>
@@ -198,8 +198,8 @@ export default function DashboardPage() {
                             </div>
                         </div> */}
                         <div>
-                            <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                            <h3 className="text-2xl font-bold mt-1">
+                            <p className="text-xs md:text-sm text-muted-foreground font-medium">{stat.label}</p>
+                            <h3 className="text-xl md:text-2xl font-bold mt-1">
                                 {stat.label.includes('Revenue') || stat.label.includes('Amount')
                                     ? formatCurrency(stat.value, companyProfile?.currency)
                                     : stat.value}
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                         <option>Last 12 months</option>
                     </select>
                 </div>
-                <div className="h-75 w-full">
+                <div className="h-[300px] md:h-[400px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={dynamicChartData}>
                             <defs>
@@ -228,8 +228,8 @@ export default function DashboardPage() {
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
-                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} />
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                                 cursor={{ stroke: '#8b5cf6', strokeWidth: 2 }}
@@ -249,48 +249,50 @@ export default function DashboardPage() {
                     <button className="text-primary text-sm font-semibold hover:underline"><Link href='/invoices'>View All</Link></button>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="text-muted-foreground text-sm border-b">
-                                <th className="pb-4 font-medium">Invoice ID</th>
-                                <th className="pb-4 font-medium">Customer</th>
-                                <th className="pb-4 font-medium">Date</th>
-                                <th className="pb-4 font-medium">Amount</th>
-                                <th className="pb-4 font-medium">Status</th>
-                                <th className="pb-4 font-medium">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {invoices.slice(0, 4).length === 0 ? (
-                                <tr>
-                                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                                        No invoices yet.
-                                    </td>
+                <div className="overflow-x-auto -mx-4 md:mx-0">
+                    <div className="inline-block min-w-full align-middle md:px-0 px-4">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="text-muted-foreground text-sm border-b">
+                                    <th className="pb-4 font-medium min-w-[100px]">Invoice ID</th>
+                                    <th className="pb-4 font-medium min-w-[150px]">Customer</th>
+                                    <th className="pb-4 font-medium min-w-[100px]">Date</th>
+                                    <th className="pb-4 font-medium min-w-[100px]">Amount</th>
+                                    <th className="pb-4 font-medium min-w-[100px]">Status</th>
+                                    <th className="pb-4 font-medium text-center">Action</th>
                                 </tr>
-                            ) : invoices.slice(0, 4).map((inv: any) => (
-                                <tr key={inv._id} className="hover:bg-muted/30 transition-colors group">
-                                    <td className="py-4 font-medium text-sm">{inv._id?.slice(-6) || 'N/A'}</td>
-                                    <td className="py-4 text-sm">
-                                        {typeof inv.customer === 'object' ? (inv.customer?.name || 'Unknown') : (inv.customer || 'Unknown')}
-                                    </td>
-                                    <td className="py-4 text-sm text-muted-foreground">{new Date(inv.createdAt).toLocaleDateString()}</td>
-                                    <td className="py-4 text-sm font-bold">{formatCurrency(inv.total, inv.currency || companyProfile?.currency)}</td>
-                                    <td className="py-4">
-                                        <span className={`text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full ${inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-500' :
-                                            inv.status === 'Overdue' ? 'bg-destructive/10 text-destructive' :
-                                                'bg-amber-500/10 text-amber-500'
-                                            }`}>
-                                            {inv.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-4">
-                                        <button className="text-muted-foreground hover:text-primary transition-colors">Details</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y">
+                                {invoices.slice(0, 4).length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                                            No invoices yet.
+                                        </td>
+                                    </tr>
+                                ) : invoices.slice(0, 4).map((inv: any) => (
+                                    <tr key={inv._id} className="hover:bg-muted/30 transition-colors group">
+                                        <td className="py-4 font-medium text-sm">{inv._id?.slice(-6) || 'N/A'}</td>
+                                        <td className="py-4 text-sm">
+                                            {typeof inv.customer === 'object' ? (inv.customer?.name || 'Unknown') : (inv.customer || 'Unknown')}
+                                        </td>
+                                        <td className="py-4 text-sm text-muted-foreground">{new Date(inv.createdAt).toLocaleDateString()}</td>
+                                        <td className="py-4 text-sm font-bold">{formatCurrency(inv.total, inv.currency || companyProfile?.currency)}</td>
+                                        <td className="py-4">
+                                            <span className={`text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full ${inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-500' :
+                                                inv.status === 'Overdue' ? 'bg-destructive/10 text-destructive' :
+                                                    'bg-amber-500/10 text-amber-500'
+                                                }`}>
+                                                {inv.status}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 text-center">
+                                            <button className="text-muted-foreground hover:text-primary transition-colors text-sm">Details</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -45,7 +45,7 @@ export default function InsightsPage() {
 
     return (
         <div className="space-y-10 pb-20">
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <div className="p-1.5 bg-primary/10 rounded-lg">
@@ -53,13 +53,13 @@ export default function InsightsPage() {
                         </div>
                         <span className="text-sm font-bold text-primary tracking-widest uppercase">AI Intelligence</span>
                     </div>
-                    <h1 className="text-4xl font-extrabold tracking-tight">Financial Insights</h1>
-                    <p className="text-muted-foreground mt-1">Predictive analytics and smart recommendations for your business.</p>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Financial Insights</h1>
+                    <p className="text-muted-foreground mt-1 text-sm md:text-base">Predictive analytics and smart recommendations for your business.</p>
                 </div>
                 <button
                     onClick={fetchAnalysis}
                     disabled={loading}
-                    className="flex items-center gap-2 bg-primary text-black px-6 py-3 rounded-2xl font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-black px-6 py-3 rounded-2xl font-bold shadow-xl shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <BrainCircuit size={20} className={loading ? "animate-pulse" : ""} />
                     {loading ? "Analyzing..." : "Refresh AI Analysis"}
@@ -79,7 +79,7 @@ export default function InsightsPage() {
                             <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-primary/30 border border-primary border-dashed"></div> Predicted</div>
                         </div>
                     </div>
-                    <div className="h-[350px] w-full">
+                    <div className="h-[300px] md:h-[350px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={forecastData}>
                                 <defs>

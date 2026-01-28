@@ -32,10 +32,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Sidebar />
                 <main className={cn(
                     "flex-1 transition-all duration-300 min-h-screen",
-                    sidebarOpen ? "pl-64" : "pl-20"
+                    sidebarOpen ? "lg:pl-64" : "lg:pl-20",
+                    "pl-0" // Default for mobile
                 )}>
                     <Navbar />
-                    <div className="p-8">
+                    <div className="p-4 md:p-8">
                         {children}
                     </div>
                 </main>

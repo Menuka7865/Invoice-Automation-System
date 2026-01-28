@@ -8,13 +8,12 @@ export default function LandingPage() {
   return (
     <div className="bg-background min-h-screen">
       {/* Navigation */}
-      <nav className="p-4 md:p-6 border-b max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        <span className="text-2xl font-bold text-black">Fishifox</span>
-        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm font-medium">
-          <Link href="#features" className="hover:text-primary transition-colors">Features</Link>
-          {/* <Link href="#pricing" className="hover:text-primary transition-colors">Pricing</Link> */}
+      <nav className="p-4 md:p-6 border-b max-w-7xl mx-auto flex flex-row justify-between items-center gap-4">
+        <span className="text-xl md:text-2xl font-bold text-black shrink-0">Fishifox</span>
+        <div className="flex items-center gap-3 md:gap-8 text-xs md:text-sm font-medium">
+          <Link href="#features" className="hidden sm:block hover:text-primary transition-colors">Features</Link>
           <Link href="/login" className="hover:text-primary transition-colors">Login</Link>
-          <Link href="/signup" className="  text-gray-800 px-5 py-2 border border-black rounded-full hover:bg-primary/90 transition-all">Get Started</Link>
+          <Link href="/signup" className="text-gray-800 px-3 md:px-5 py-1.5 md:py-2 border border-black rounded-full hover:bg-primary/90 transition-all font-bold">Get Started</Link>
         </div>
       </nav>
 
@@ -73,8 +72,8 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Counter */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
+      <section className="py-16 md:py-24 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center">
           {[
             { label: "Active Users", value: "10K+" },
             { label: "Invoices Generated", value: "1M+" },
@@ -82,8 +81,8 @@ export default function LandingPage() {
             { label: "Customer Satisfaction", value: "99.9%" },
           ].map((stat, i) => (
             <div key={i}>
-              <h4 className="text-4xl font-extrabold mb-2">{stat.value}</h4>
-              <p className="text-muted-foreground">{stat.label}</p>
+              <h4 className="text-2xl md:text-4xl font-extrabold mb-1 md:mb-2">{stat.value}</h4>
+              <p className="text-muted-foreground text-xs md:text-sm">{stat.label}</p>
             </div>
           ))}
         </div>
