@@ -17,9 +17,6 @@ export default function Navbar() {
                     <Menu size={20} />
                 </button>
 
-                <div className="lg:hidden">
-                    <span className="text-lg font-bold text-black tracking-tight">Fishifox</span>
-                </div>
 
                 <div className="hidden md:flex items-center gap-4 bg-muted/50 px-4 py-2 rounded-xl w-64 lg:w-96 border border-border/40">
                     <Search size={18} className="text-muted-foreground" />

@@ -14,8 +14,8 @@ export class Project extends Document {
     @Prop({ type: Types.ObjectId, ref: 'Customer', required: true })
     customer: Types.ObjectId;
 
-    @Prop({ type: Types.ObjectId, ref: 'Quotation', required: true })
-    quotation: Types.ObjectId;
+    @Prop({ type: Types.ObjectId, ref: 'Quotation' })
+    quotation?: Types.ObjectId;
 
     @Prop({ default: 'Planned' })
     status: string;

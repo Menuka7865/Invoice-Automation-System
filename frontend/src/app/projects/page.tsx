@@ -151,12 +151,12 @@ export default function ProjectsPage() {
                                     <User size={14} className="text-primary" />
                                     <span className="font-medium">{project.customer?.name || 'Unknown Customer'}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
+                                {/* <div className="flex items-center gap-2 text-sm">
                                     <FileText size={14} className="text-primary" />
                                     <span className="text-muted-foreground">
                                         Quote: QT-{project.quotation?._id?.slice(-6).toUpperCase() || 'N/A'}
                                     </span>
-                                </div>
+                                </div> */}
                                 <div className="flex items-center gap-2 text-sm">
                                     <Calendar size={14} className="text-primary" />
                                     <span className="text-muted-foreground">
